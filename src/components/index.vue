@@ -7,6 +7,9 @@
 <style scoped lang="less" rel="stylesheet/less">
   .x-form-editor {
     position: relative;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #f5f7f9;
   }
 </style>
 
