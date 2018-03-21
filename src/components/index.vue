@@ -16,19 +16,26 @@
 <template>
   <div class="x-form-editor">
     <h1>TODO XFormEditor</h1>
-    <slot></slot>
+    <component :is="components.list"></component>
   </div>
 </template>
 
 <script>
-import config from '../config'
+import Vue from 'vue'
+import defConfig from '../config'
 
 export default {
   name: 'XFormEditor',
   props: {
     config: {
       type: Object,
-      default: config
+      default: defConfig
+    }
+  },
+  data () {
+    return {
+      defConfig,
+      components: {}
     }
   },
   methods: {
@@ -43,7 +50,23 @@ export default {
       let _t = this
       // 处理配置信息
       let config = JSON.parse(JSON.stringify(_t.config))
-      console.log('UIconfig', config)
+      console.log('defConfig', _t.defConfig)
+      console.groupCollapsed('XFormEditor COMPONENTS LOAD ERROR::')
+      Object.keys(config.UI).map(key => {
+        let item = config.UI[key]
+        // 判断是否启用
+        if (item.enable) {
+          // 处理组件路径
+          let componentPath = item.component || _t.defConfig.UI[key].component
+          try {
+            // 加载组件
+            _t.components[key] = Vue.extend(require('' + componentPath).default)
+          } catch (err) {
+            console.warn('LOAD', componentPath, 'FAIL:', err.message)
+          }
+        }
+      })
+      console.groupEnd()
     }
   },
   created: function () {

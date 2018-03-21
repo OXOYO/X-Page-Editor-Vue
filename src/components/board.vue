@@ -1,7 +1,7 @@
 /**
 * Created by OXOYO on 2018/3/21.
 *
-* 元素列表组件
+* 画板组件
 */
 
 <style scoped lang="less" rel="stylesheet/less">
@@ -10,13 +10,13 @@
 
 <template>
   <div>
-    <h1>TODO List</h1>
+    <h1>TODO Board</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'XFormEditorList',
+  name: 'XFormEditorBoard',
   data () {
     return {}
   }
