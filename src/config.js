@@ -7,12 +7,19 @@
 export default {
   // 自定义编辑器内相关UI
   UI: {
+    // 编辑器功能：头部组件
+    header: {
+      // 是否启用该功能，true: 启用 false: 不启用
+      enable: true,
+      // 该功能数据源
+      data: [],
+      // 初始化数据
+      initData: []
+    },
     // 编辑器功能：表单元素列表
     list: {
       // 是否启用该功能，true: 启用 false: 不启用
       enable: true,
-      // 自定义该功能组件路径，空 或 false 则使用插件默认组件
-      component: './list.vue',
       // 该功能数据源
       data: [],
       // 初始化数据
@@ -22,8 +29,6 @@ export default {
     board: {
       // 是否启用该功能，true: 启用 false: 不启用
       enable: true,
-      // 自定义该功能组件路径，空 或 false 则使用插件默认组件
-      component: './board.vue',
       // 该功能数据源
       data: [],
       // 初始化数据
@@ -33,8 +38,6 @@ export default {
     options: {
       // 是否启用该功能，true: 启用 false: 不启用
       enable: true,
-      // 自定义该功能组件路径，空 或 false 则使用插件默认组件
-      component: './options.vue',
       // 该功能数据源
       data: [],
       // 初始化数据

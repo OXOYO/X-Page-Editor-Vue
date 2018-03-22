@@ -9,23 +9,44 @@
     position: relative;
     width: 100%;
     height: 100%;
-    border: 1px solid #f5f7f9;
+    border: 1px solid #dddddd;
+    display: inline-block;
   }
 </style>
 
 <template>
   <div class="x-form-editor">
-    <h1>TODO XFormEditor</h1>
-    <component :is="components.list"></component>
+    <slot name="header" v-if="mergeConfig.UI.header.enable">
+      <XFormEditorHeader></XFormEditorHeader>
+    </slot>
+    <slot name="list" v-if="mergeConfig.UI.list.enable">
+      <XFormEditorList></XFormEditorList>
+    </slot>
+    <slot name="board" v-if="mergeConfig.UI.board.enable">
+      <XFormEditorBoard></XFormEditorBoard>
+    </slot>
+    <slot name="options" v-if="mergeConfig.UI.options.enable">
+      <XFormEditorOptions></XFormEditorOptions>
+    </slot>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
+import XFormEditorHeader from './header.vue'
+import XFormEditorList from './list.vue'
+import XFormEditorBoard from './board.vue'
+import XFormEditorOptions from './options.vue'
 import defConfig from '../config'
+import utils from '../utils'
 
 export default {
   name: 'XFormEditor',
+  components: {
+    XFormEditorHeader,
+    XFormEditorList,
+    XFormEditorBoard,
+    XFormEditorOptions
+  },
   props: {
     config: {
       type: Object,
@@ -35,7 +56,8 @@ export default {
   data () {
     return {
       defConfig,
-      components: {}
+      // 合并后的config
+      mergeConfig: {}
     }
   },
   methods: {
@@ -49,24 +71,7 @@ export default {
     renderUI: function () {
       let _t = this
       // 处理配置信息
-      let config = JSON.parse(JSON.stringify(_t.config))
-      console.log('defConfig', _t.defConfig)
-      console.groupCollapsed('XFormEditor COMPONENTS LOAD ERROR::')
-      Object.keys(config.UI).map(key => {
-        let item = config.UI[key]
-        // 判断是否启用
-        if (item.enable) {
-          // 处理组件路径
-          let componentPath = item.component || _t.defConfig.UI[key].component
-          try {
-            // 加载组件
-            _t.components[key] = Vue.extend(require('' + componentPath).default)
-          } catch (err) {
-            console.warn('LOAD', componentPath, 'FAIL:', err.message)
-          }
-        }
-      })
-      console.groupEnd()
+      _t.mergeConfig = utils.mergeObject(_t.defConfig, _t.config)
     }
   },
   created: function () {
