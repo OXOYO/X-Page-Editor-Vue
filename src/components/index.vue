@@ -50,7 +50,9 @@ export default {
   props: {
     config: {
       type: Object,
-      default: defConfig
+      default: function () {
+        return defConfig
+      }
     }
   },
   data () {
