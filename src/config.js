@@ -25,7 +25,7 @@ export default {
       // 初始化数据
       initData: []
     },
-    // 编辑器画板
+    // 编辑器功能：编辑器画板
     board: {
       // 是否启用该功能，true: 启用 false: 不启用
       enable: true,
@@ -34,8 +34,17 @@ export default {
       // 初始化数据
       initData: []
     },
-    // 表单元素配置组件
+    // 编辑器功能：表单元素配置组件
     options: {
+      // 是否启用该功能，true: 启用 false: 不启用
+      enable: true,
+      // 该功能数据源
+      data: [],
+      // 初始化数据
+      initData: []
+    },
+    // 编辑器功能：脚部组件
+    footer: {
       // 是否启用该功能，true: 启用 false: 不启用
       enable: true,
       // 该功能数据源

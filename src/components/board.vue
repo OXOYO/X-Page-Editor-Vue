@@ -12,6 +12,10 @@
     bottom: 0;
     left: 0;
     display: inline-block;
+    z-index: 1000;
+    background-image: linear-gradient(45deg, #f5f5f5 25%, transparent 0, transparent 75%, #f5f5f5 0), linear-gradient(45deg, #f5f5f5 25%, transparent 0, transparent 75%, #f5f5f5 0);
+    background-position: 0 0, 10px 10px;
+    background-size: 20px 20px;
   }
 </style>
 

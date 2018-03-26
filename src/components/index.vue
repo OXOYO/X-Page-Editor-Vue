@@ -11,6 +11,15 @@
     height: 100%;
     border: 1px solid #dddddd;
     display: inline-block;
+    background: #ffffff;
+    overflow: hidden;
+  }
+  article, aside, blockquote, body, button, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, section, td, textarea, th, ul {
+    margin: 0;
+    padding: 0;
+  }
+  *, :after, :before {
+    box-sizing: border-box;
   }
 </style>
 
@@ -20,13 +29,16 @@
       <XFormEditorHeader></XFormEditorHeader>
     </slot>
     <slot name="list" v-if="mergeConfig.UI.list.enable">
-      <XFormEditorList></XFormEditorList>
+      <XFormEditorList :config="mergeConfig.UI.list"></XFormEditorList>
     </slot>
     <slot name="board" v-if="mergeConfig.UI.board.enable">
       <XFormEditorBoard></XFormEditorBoard>
     </slot>
     <slot name="options" v-if="mergeConfig.UI.options.enable">
       <XFormEditorOptions></XFormEditorOptions>
+    </slot>
+    <slot name="footer" v-if="mergeConfig.UI.footer.enable">
+      <XFormEditorFooter></XFormEditorFooter>
     </slot>
   </div>
 </template>
@@ -36,6 +48,8 @@ import XFormEditorHeader from './header.vue'
 import XFormEditorList from './list.vue'
 import XFormEditorBoard from './board.vue'
 import XFormEditorOptions from './options.vue'
+import XFormEditorFooter from './footer.vue'
+
 import defConfig from '../config'
 import utils from '../utils'
 
@@ -45,7 +59,8 @@ export default {
     XFormEditorHeader,
     XFormEditorList,
     XFormEditorBoard,
-    XFormEditorOptions
+    XFormEditorOptions,
+    XFormEditorFooter
   },
   props: {
     config: {

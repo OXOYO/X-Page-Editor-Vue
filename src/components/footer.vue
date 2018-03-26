@@ -1,17 +1,18 @@
 /**
-* Created by OXOYO on 2018/3/21.
+* Created by OXOYO on 2018/3/26.
 *
-* 配置组件
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_options {
+  .x-form-editor_footer {
     position: absolute;
-    top: 50px;
-    right: 0;
     bottom: 0;
-    width: 400px;
-    border-left: 1px solid #dddddd;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 49px;
+    line-height: 49px;
+    border-top: 1px solid #dddddd;
     display: inline-block;
     z-index: 2000;
     background: #ffffff;
@@ -19,9 +20,9 @@
 </style>
 
 <template>
-  <div class="x-form-editor_options">
-    <h1>TODO Options</h1>
-    <XFormEditorHandler mode="vertical" position="left"></XFormEditorHandler>
+  <div class="x-form-editor_footer">
+    <h1>TODO Footer</h1>
+    <XFormEditorHandler mode="horizontal" position="top"></XFormEditorHandler>
   </div>
 </template>
 
@@ -29,12 +30,9 @@
 import XFormEditorHandler from '../global/components/handler.vue'
 
 export default {
-  name: 'XFormEditorOptions',
+  name: 'XFormEditorFooter',
   components: {
     XFormEditorHandler
-  },
-  data () {
-    return {}
   }
 }
 </script>
