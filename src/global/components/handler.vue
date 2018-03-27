@@ -13,45 +13,47 @@
     transition: all .5s ease-in .1s;
 
     &:hover {
-      .handler-content {
-        transform: rotate(360deg);
-      }
+      background: #dddddd;
     }
 
     &.horizontal {
-      width: 40px;
+      width: 20px;
       height: 20px;
       line-height: 20px;
       left: 50%;
-      margin-left: -20px;
+      margin-left: -10px;
     }
     &.vertical {
       width: 20px;
-      height: 40px;
-      line-height: 40px;
+      height: 20px;
+      line-height: 20px;
       top: 50%;
-      margin-top: -20px;
+      margin-top: -10px;
     }
 
     &.top {
-      top: 0;
-      margin-top: -22px;
-      border-bottom-color: #ffffff;
+      top: -11px;
+      border-bottom: none;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -2px 2px 0 rgba(0, 0, 0, 0.1);
     }
     &.right {
-      right: 0;
-      margin-right: -22px;
-      border-left-color: #ffffff;
+      right: -11px;
+      border-left: none;
+      border-radius: 0 20px 20px 0;
+      box-shadow: 2px 0 2px 0 rgba(0, 0, 0, 0.1);
     }
     &.bottom {
-      bottom: 0;
-      margin-bottom: -22px;
-      border-top-color: #ffffff;
+      bottom: -11px;
+      border-top: none;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
     }
     &.left {
-      left: 0;
-      margin-left: -22px;
-      border-right-color: #ffffff;
+      left: -11px;
+      border-right: none;
+      border-radius: 20px 0 0 20px;
+      box-shadow: -2px 0 2px 0 rgba(0, 0, 0, 0.1);
     }
 
     &.expand {
@@ -68,20 +70,12 @@
         margin-left: 0;
       }
     }
-
-    .handler-content {
-      display: inline-block;
-      cursor: default;
-      transition: all .5s ease-in .1s;
-    }
   }
 
 </style>
 
 <template>
-  <div :class="className">
-    <div class="handler-content">{{ content }}</div>
-  </div>
+  <div :class="className" @click="toggleHandler"></div>
 </template>
 
 <script>
@@ -109,11 +103,6 @@ export default {
       type: Boolean,
       default: true
     },
-    // 内容
-    content: {
-      type: String,
-      default: '>'
-    },
     // 回调
     callback: {
       type: Function
@@ -123,6 +112,15 @@ export default {
     className: function () {
       let _t = this
       return ['x-form-editor_handler', _t.mode, _t.position, _t.expand]
+    }
+  },
+  methods: {
+    // 切换handler显示/隐藏
+    toggleHandler: function () {
+      let _t = this
+      if (_t.callback) {
+        _t.callback()
+      }
     }
   }
 }

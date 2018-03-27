@@ -7,46 +7,46 @@
 <style scoped lang="less" rel="stylesheet/less">
   .x-form-editor_list {
     position: absolute;
-    top: 50px;
+    top: 0px;
     bottom: 0;
     left: 0;
     width: 400px;
     margin-left: -400px;
+    padding-top: 50px;
     border-right: 1px solid #dddddd;
     display: inline-block;
     z-index: 2000;
     background: #ffffff;
+    box-shadow: 2px 0 2px 0 rgba(0, 0, 0, 0.1);
     transition: all .5s ease-in .1s;
 
-    &.list_expand {
+    &.block_expand {
       margin-left: 0;
-
-      .handler {
-        margin-right: 0;
-
-        &:hover {
-          .handler-icon {
-            transform: rotate(360deg);
-          }
-        }
-      }
     }
 
     &:hover {
       .handler {
-        margin-right: -22px;
+        margin-right: -10px;
       }
     }
 
-    .list_header {
+    .block_header {
       width: 100%;
-      height: 40px;
-      line-height: 40px;
+      height: 39px;
+      line-height: 39px;
       border-bottom: 1px solid #dddddd;
+      text-align: left;
+
+      .title {
+        font-size: 16px;
+        font-weight: bold;
+        margin-left: 20px;
+        display: inline-block;
+      }
     }
-    .list_body {
+    .block_body {
       position: absolute;
-      top: 40px;
+      top: 90px;
       right: 0;
       left: 0;
       bottom: 0;
@@ -61,64 +61,26 @@
         border-bottom: 1px solid;
       }
     }
-    .handler {
-      transition: all .5s ease-in .1s;
-      position: absolute;
-      top: 50%;
-      right: 0;
-      margin-top: -20px;
-      margin-right: -22px;
-      height: 40px;
-      line-height: 40px;
-      width: 20px;
-      border: 1px solid #dddddd;
-      border-left-color: #ffffff;
-      background: #ffffff;
-      overflow: hidden;
-
-      &:hover {
-        .handler-icon {
-          transform: rotate(360deg);
-        }
-      }
-
-      .handler-icon {
-        height: 100%;
-        width: 100%;
-        display: inline-block;
-        transition: all .5s ease-in .1s;
-        transform: rotate(0deg);
-
-        &:after {
-          content: '<';
-        }
-        &.rotate {
-          transform: rotate(180deg);
-        }
-      }
-    }
   }
 </style>
 
 <template>
-  <div :class="{'x-form-editor_list': true, 'list_expand': isExpand}">
-    <div class="list_header">
-      资源列表
+  <div :class="{'x-form-editor_list': true, 'block_expand': isExpand}">
+    <div class="block_header">
+      <div class="title">
+        资源列表
+      </div>
     </div>
-    <div class="list_body">
+    <div class="block_body">
       <div class="list_item" v-for="(value, key) in config.data" :key="key">{{ key }}</div>
     </div>
-    <!--
-    <div class="handler" @click="toggleHandler">
-      <div :class="{'handler-icon': true, 'rotate': !isExpand }"></div>
-    </div>
-    -->
-    <XFormEditorHandler mode="vertical" position="right"></XFormEditorHandler>
+    <XFormEditorHandler class="handler" mode="vertical" position="right" :expand="isExpand" :callback="toggleHandler"></XFormEditorHandler>
   </div>
 </template>
 
 <script>
 import XFormEditorHandler from '../global/components/handler.vue'
+import utils from '../global/utils'
 
 export default {
   name: 'XFormEditorList',
@@ -133,22 +95,33 @@ export default {
   data () {
     return {
       // 是否展开
-      isExpand: true,
-      // 是否显示handler
-      isShowHandler: false
+      isExpand: true
     }
   },
   methods: {
     // 切换handler显示/隐藏
-    toggleHandler: function () {
+    toggleHandler: function (val) {
       let _t = this
-      _t.isShowHandler = !_t.isShowHandler
-      _t.isExpand = !_t.isExpand
+      _t.isExpand = val !== undefined ? val : !_t.isExpand
+      _t.$nextTick(function () {
+        let elWidth = _t.isExpand ? _t.$el.offsetWidth : 0
+        // 广播事件
+        utils.bus.$emit('XFormEditor/expand/toggle/single', {
+          position: 'left',
+          val: {
+            left: elWidth
+          }
+        })
+      })
     }
   },
   created: function () {
     let _t = this
     console.log('List Config::', _t.config)
+    // 监听事件
+    utils.bus.$on('XFormEditor/expand/toggle/all', function (val) {
+      _t.toggleHandler(val)
+    })
   }
 }
 </script>

@@ -13,6 +13,10 @@
     display: inline-block;
     background: #ffffff;
     overflow: hidden;
+    user-select: none;
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   article, aside, blockquote, body, button, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, section, td, textarea, th, ul {
     margin: 0;
@@ -32,7 +36,7 @@
       <XFormEditorList :config="mergeConfig.UI.list"></XFormEditorList>
     </slot>
     <slot name="board" v-if="mergeConfig.UI.board.enable">
-      <XFormEditorBoard></XFormEditorBoard>
+      <XFormEditorBoard :config="mergeConfig.UI.board"></XFormEditorBoard>
     </slot>
     <slot name="options" v-if="mergeConfig.UI.options.enable">
       <XFormEditorOptions></XFormEditorOptions>
@@ -44,6 +48,8 @@
 </template>
 
 <script>
+import '../global/icon/iconfont.css'
+
 import XFormEditorHeader from './header.vue'
 import XFormEditorList from './list.vue'
 import XFormEditorBoard from './board.vue'
@@ -51,7 +57,7 @@ import XFormEditorOptions from './options.vue'
 import XFormEditorFooter from './footer.vue'
 
 import defConfig from '../config'
-import utils from '../utils'
+import utils from '../global/utils'
 
 export default {
   name: 'XFormEditor',

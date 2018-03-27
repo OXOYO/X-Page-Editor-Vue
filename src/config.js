@@ -32,7 +32,14 @@ export default {
       // 该功能数据源
       data: [],
       // 初始化数据
-      initData: []
+      initData: [],
+      // 工具栏配置
+      toolBar: {
+        // 是否启用该功能，true: 启用 false: 不启用
+        enable: true,
+        // 位置，可选值 top-left || top-right || bottom-right || bottom-left
+        position: 'top-right'
+      }
     },
     // 编辑器功能：表单元素配置组件
     options: {
