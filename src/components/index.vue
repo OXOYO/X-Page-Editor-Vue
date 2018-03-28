@@ -13,6 +13,7 @@
     display: inline-block;
     background: #ffffff;
     overflow: hidden;
+    cursor: default;
     user-select: none;
     font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -28,7 +29,7 @@
 </style>
 
 <template>
-  <div class="x-form-editor">
+  <div class="x-form-editor" @contextmenu.stop.prevent @mousedown.stop.prevent="handleMouseDown">
     <slot name="header" v-if="mergeConfig.UI.header.enable">
       <XFormEditorHeader></XFormEditorHeader>
     </slot>
@@ -44,6 +45,7 @@
     <slot name="footer" v-if="mergeConfig.UI.footer.enable">
       <XFormEditorFooter></XFormEditorFooter>
     </slot>
+    <XFormEditorContextMenu></XFormEditorContextMenu>
   </div>
 </template>
 
@@ -55,6 +57,7 @@ import XFormEditorList from './list.vue'
 import XFormEditorBoard from './board.vue'
 import XFormEditorOptions from './options.vue'
 import XFormEditorFooter from './footer.vue'
+import XFormEditorContextMenu from '../global/components/ContextMenu/Index.vue'
 
 import defConfig from '../config'
 import utils from '../global/utils'
@@ -66,7 +69,8 @@ export default {
     XFormEditorList,
     XFormEditorBoard,
     XFormEditorOptions,
-    XFormEditorFooter
+    XFormEditorFooter,
+    XFormEditorContextMenu
   },
   props: {
     config: {
@@ -95,6 +99,11 @@ export default {
       let _t = this
       // 处理配置信息
       _t.mergeConfig = utils.mergeObject(_t.defConfig, _t.config)
+    },
+    // 鼠标点击事件
+    handleMouseDown: function () {
+      // 关闭菜单
+      utils.bus.$emit('XFormEditor/contextMenu/hide')
     }
   },
   created: function () {

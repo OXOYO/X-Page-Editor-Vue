@@ -39,6 +39,11 @@ export default {
         enable: true,
         // 位置，可选值 top-left || top-right || bottom-right || bottom-left
         position: 'top-right'
+      },
+      // 刻度尺配置
+      scale: {
+        // 是否启用该功能，true: 启用 false: 不启用
+        enable: true
       }
     },
     // 编辑器功能：表单元素配置组件

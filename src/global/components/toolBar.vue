@@ -45,9 +45,10 @@
           line-height: 20px;
           padding: 5px;
           display: inline-block;
+          color: #333333;
 
           &:hover {
-            background: #dddddd;
+            color: #2d8cf0;
           }
         }
       }
@@ -56,10 +57,17 @@
 </style>
 
 <template>
-  <div class="x-form-editor_tool-bar" :style="style">
+  <div class="x-form-editor_tool-bar" :style="style" @contextmenu.stop.prevent @mousedown.stop.prevent>
     <div class="bar-list">
-      <div class="bar-item" v-for="(item, index) in barList" :key="index">
-        <i :class="['iconfont', item.icon]" :alt="item.title" :title="item.title" @click="handleAction(item.name)"></i>
+      <div
+        class="bar-item"
+        v-for="(item, index) in barList"
+        v-if="item.enable" :key="index"
+        @contextmenu.stop.prevent
+        @mousedown.stop.prevent
+        @click.stop.prevent="triggerBarItem(item)"
+      >
+        <i :class="['iconfont', item.icon]" :alt="item.text" :title="item.text"></i>
       </div>
     </div>
   </div>
@@ -89,28 +97,50 @@ export default {
       // 默认工具列表
       defBarList: [
         {
-          name: 'fold',
-          title: '折叠',
-          icon: 'icon-fold',
-          category: 'expand'
+          name: 'expand',
+          text: '展开',
+          icon: 'icon-expand',
+          category: 'expand',
+          enable: true,
+          action: {
+            type: 'bus',
+            handler: 'XFormEditor/expand/toggle/all',
+            params: false
+          }
         },
         {
-          name: 'expand',
-          title: '展开',
-          icon: 'icon-expand',
-          category: 'expand'
+          name: 'fold',
+          text: '折叠',
+          icon: 'icon-fold',
+          category: 'expand',
+          enable: true,
+          action: {
+            type: 'bus',
+            handler: 'XFormEditor/expand/toggle/all',
+            params: true
+          }
         },
         {
           name: 'zoom-in',
-          title: '放大',
+          text: '放大',
           icon: 'icon-zoom-in',
-          category: 'zoom'
+          category: 'zoom',
+          enable: true,
+          action: {
+            type: 'bus',
+            handler: 'XFormEditor/board/zoom/in'
+          }
         },
         {
           name: 'zoom-out',
-          title: '缩小',
+          text: '缩小',
           icon: 'icon-zoom-out',
-          category: 'zoom'
+          category: 'zoom',
+          enable: true,
+          action: {
+            type: 'bus',
+            handler: 'XFormEditor/board/zoom/out'
+          }
         }
       ],
       // 工具列表
@@ -137,7 +167,14 @@ export default {
       // 工具栏样式
       style: {},
       // 工具栏与其他面板间距, 默认50px
-      distance: 50
+      distance: 50,
+      // 缩放级别
+      zoom: {
+        // 当前缩放级别 0: 未缩放 1: 放大一级 -1: 缩小一级
+        current: 0,
+        max: 5,
+        min: -5
+      }
     }
   },
   watch: {
@@ -190,6 +227,19 @@ export default {
           // 广播事件
           utils.bus.$emit('XFormEditor/expand/toggle/all', false)
           break
+      }
+    },
+    // 触发菜单
+    triggerBarItem: function (info) {
+      console.log('triggerBarItem', info.text, info.name)
+      // 执行菜单相应操作
+      if (info && info.action && info.action.type) {
+        switch (info.action.type) {
+          case 'bus':
+            console.log('info.action.handler', info.action.handler)
+            utils.bus.$emit(info.action.handler, info.action.params)
+            break
+        }
       }
     }
   },

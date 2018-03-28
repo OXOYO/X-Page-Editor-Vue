@@ -39,25 +39,36 @@
 </style>
 
 <template>
-  <div class="x-form-editor_board" @dblclick="toggleExpand">
+  <div
+    class="x-form-editor_board"
+    @dblclick="toggleExpand"
+    @contextmenu.stop.prevent="handlerRightClick($event)"
+    @mousemove.stop.prevent="handleMouseMoveOnBoard($event)"
+  >
     <div class="block_body">
       <h1>TODO Board</h1>
     </div>
     <slot name="toolBar" v-if="config.toolBar.enable">
       <XFormEditorToolBar :config="config.toolBar" :expand="isExpand"></XFormEditorToolBar>
     </slot>
+    <slot name="scale" v-if="config.scale.enable">
+      <XFormEditorScale :config="config.scale" :width="boardWidth" :height="boardHeight"></XFormEditorScale>
+    </slot>
   </div>
 </template>
 
 <script>
 import XFormEditorToolBar from '../global/components/toolBar.vue'
+import XFormEditorScale from '../global/components/scale.vue'
+
 import defConfig from '../config'
 import utils from '../global/utils'
 
 export default {
   name: 'XFormEditorBoard',
   components: {
-    XFormEditorToolBar
+    XFormEditorToolBar,
+    XFormEditorScale
   },
   props: {
     config: {
@@ -70,7 +81,33 @@ export default {
   data () {
     return {
       // 是否展开
-      isExpand: true
+      isExpand: true,
+      // 画板宽度
+      boardWidth: 0,
+      // 画板高度
+      boardHeight: 0,
+      // 缩放级别
+      zoom: {
+        // 当前缩放级别 0: 未缩放 1: 放大一级 -1: 缩小一级
+        current: 0,
+        max: 5,
+        min: -5
+      },
+      // 参考线
+      guides: {
+        type: '',
+        status: {
+          start: false,
+          move: false,
+          end: false
+        },
+        position: {
+          start: {
+            x: 0,
+            y: 0
+          }
+        }
+      }
     }
   },
   methods: {
@@ -79,6 +116,84 @@ export default {
       _t.isExpand = !_t.isExpand
       // 广播事件
       utils.bus.$emit('XFormEditor/expand/toggle/all', _t.isExpand)
+    },
+    // 桌面右键点击
+    handlerRightClick: function (event) {
+      let _t = this
+      let xVal = parseInt(event.offsetX)
+      let yVal = parseInt(event.offsetY)
+      // 菜单信息
+      let contextMenuInfo = {
+        isShow: true,
+        x: xVal,
+        y: yVal,
+        target: 'XFE_board',
+        list: [
+          {
+            name: 'expand',
+            icon: {
+              type: 'icon-expand',
+              style: ''
+            },
+            text: '展开',
+            enable: _t.isExpand,
+            action: {
+              type: 'bus',
+              handler: 'XFormEditor/expand/toggle/all',
+              params: false
+            }
+          },
+          {
+            name: 'fold',
+            icon: {
+              type: 'icon-fold',
+              style: ''
+            },
+            text: '折叠',
+            enable: !_t.isExpand,
+            action: {
+              type: 'bus',
+              handler: 'XFormEditor/expand/toggle/all',
+              params: true
+            }
+          },
+          {
+            name: 'clear',
+            icon: {
+              type: '',
+              style: ''
+            },
+            text: '清空',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XFormEditor/board/clear'
+            }
+          }
+        ]
+      }
+      // 广播事件
+      utils.bus.$emit('XFormEditor/contextMenu/show', contextMenuInfo)
+    },
+    handleMouseMoveOnBoard: function (event) {
+      let _t = this
+      // 判断是否开始拖拽参考线
+      if (_t.guides.status.start) {
+        console.log('handleMouseMoveOnBoard type', _t.guides.type)
+        // 依据移动距离判断是否可以开始画线
+        if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
+          let currentPostion = {
+            x: event.offsetX,
+            y: event.offsetY
+          }
+          if (_t.guides.condition.draw(_t.guides.type, currentPostion, _t.guides.position.start)) {
+            utils.bus.$emit('XFormEditor/scale/guides/move', {
+              id: '',
+              position: currentPostion
+            })
+          }
+        }
+      }
     }
   },
   created: function () {
@@ -87,6 +202,15 @@ export default {
     utils.bus.$on('XFormEditor/expand/toggle/all', function (val) {
       _t.isExpand = val
     })
+    utils.bus.$on('XFormEditor/scale/guides/add', function (val) {
+      _t.guides = val
+    })
+  },
+  mounted: function () {
+    let _t = this
+    _t.boardWidth = _t.$el.offsetWidth
+    _t.boardHeight = _t.$el.offsetHeight
+    console.log('boardWidth', _t.$el.offsetWidth, _t.$el.offsetHeight)
   }
 }
 </script>
