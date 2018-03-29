@@ -86,13 +86,10 @@
       <div class="btn-group">
         <!-- TODO 上传UI效果图，进行UI图与界面的比对 -->
         <XFormEditorButton type="text" class="btn-item">
-          <i class="iconfont icon-ui" title="UI"></i>
+          <i class="iconfont icon-ui" title="UI" @mousedown.stop.prevent @click.stop.prevent="handleUI"></i>
         </XFormEditorButton>
         <XFormEditorButton type="text" class="btn-item">
-          <i class="iconfont icon-ui" title="UI"></i>
-        </XFormEditorButton>
-        <XFormEditorButton type="text" class="btn-item">
-          <i class="iconfont icon-ui" title="UI"></i>
+          <i class="iconfont icon-preview" title="预览" @mousedown.stop.prevent @click.stop.prevent="handlePreview"></i>
         </XFormEditorButton>
       </div>
     </div>
@@ -132,6 +129,12 @@ export default {
           }
         })
       })
+    },
+    handleUI: function () {
+      console.log('handleUI')
+    },
+    handlePreview: function () {
+      console.log('handlePreview')
     }
   },
   created: function () {
