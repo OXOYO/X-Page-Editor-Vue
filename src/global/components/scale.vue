@@ -117,7 +117,6 @@
       :key="item.key"
       :guides_key="item.key"
       :style="[{ 'width': width + 'px' }, item.style ]"
-      :alt="item.text"
       :title="item.text"
       :type="item.type"
       @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
@@ -129,7 +128,6 @@
       :key="item.key"
       :guides_key="item.key"
       :style="[{ 'height': height + 'px' }, item.style ]"
-      :alt="item.text"
       :title="item.text"
       :type="item.type"
       @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
@@ -356,6 +354,13 @@ export default {
     utils.bus.$on('XFormEditor/scale/guides/stop', function (info) {
       if (!info.status.start && !info.status.move && info.status.end) {
         _t.guidesMap = JSON.parse(JSON.stringify(_t.guidesList))
+      }
+    })
+    utils.bus.$on('XFormEditor/board/clear', function () {
+      // 清空画板
+      _t.guidesMap = _t._t.guidesList = {
+        x: {},
+        y: {}
       }
     })
   }
