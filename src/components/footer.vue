@@ -64,7 +64,7 @@
 <template>
   <div :class="{'x-form-editor_footer': true, 'block_expand': isExpand}">
     <div class="block_body">
-      <div class="title">TODO Footer</div>
+      <XFormEditorButton type="primary">SAVE</XFormEditorButton>
     </div>
     <XFormEditorHandler class="handler" mode="horizontal" position="top" :expand="isExpand" :callback="toggleHandler"></XFormEditorHandler>
   </div>
@@ -72,12 +72,14 @@
 
 <script>
 import XFormEditorHandler from '../global/components/handler.vue'
+import XFormEditorButton from '../global/components/button.vue'
 import utils from '../global/utils'
 
 export default {
   name: 'XFormEditorFooter',
   components: {
-    XFormEditorHandler
+    XFormEditorHandler,
+    XFormEditorButton
   },
   data () {
     return {

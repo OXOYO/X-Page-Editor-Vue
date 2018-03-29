@@ -32,22 +32,16 @@
     }
 
     .block_header {
-      width: 100%;
-      height: 30px;
-      line-height: 30px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 200px;
+      height: 49px;
+      line-height: 49px;
       font-size: 24px;
       font-weight: bold;
       display: inline-block;
-    }
-    .block_body {
-      position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
-      bottom: 0;
-      z-index: 2500;
-      background: #ffffff;
-      text-align: center;
 
       .title {
         height: 30px;
@@ -59,13 +53,48 @@
         margin: 0 auto;
       }
     }
+    .block_body {
+      position: absolute;
+      top: 0;
+      right: 400px;
+      left: 400px;
+      bottom: 0;
+      z-index: 2500;
+      background: #ffffff;
+      text-align: right;
+
+      .btn-group {
+        height: 30px;
+        line-height: 30px;
+        margin-top: 15px;
+        display: inline-block;
+
+        .btn-item {
+          padding: 0 5px;
+        }
+      }
+    }
   }
 </style>
 
 <template>
   <div :class="{'x-form-editor_header': true, 'block_expand': isExpand}">
-    <div class="block_body">
+    <div class="block_header">
       <div class="title">X-Form-Editor</div>
+    </div>
+    <div class="block_body">
+      <div class="btn-group">
+        <!-- TODO 上传UI效果图，进行UI图与界面的比对 -->
+        <XFormEditorButton type="text" class="btn-item">
+          <i class="iconfont icon-ui" title="UI"></i>
+        </XFormEditorButton>
+        <XFormEditorButton type="text" class="btn-item">
+          <i class="iconfont icon-ui" title="UI"></i>
+        </XFormEditorButton>
+        <XFormEditorButton type="text" class="btn-item">
+          <i class="iconfont icon-ui" title="UI"></i>
+        </XFormEditorButton>
+      </div>
     </div>
     <XFormEditorHandler class="handler" mode="horizontal" position="bottom" :expand="isExpand" :callback="toggleHandler"></XFormEditorHandler>
   </div>
@@ -73,12 +102,14 @@
 
 <script>
 import XFormEditorHandler from '../global/components/handler.vue'
+import XFormEditorButton from '../global/components/button.vue'
 import utils from '../global/utils'
 
 export default {
   name: 'XFormEditorHeader',
   components: {
-    XFormEditorHandler
+    XFormEditorHandler,
+    XFormEditorButton
   },
   data () {
     return {
