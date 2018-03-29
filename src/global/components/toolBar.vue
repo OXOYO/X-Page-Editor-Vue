@@ -57,7 +57,13 @@
 </style>
 
 <template>
-  <div class="x-form-editor_tool-bar" :style="style" @contextmenu.stop.prevent @mousedown.stop.prevent>
+  <div
+    class="x-form-editor_tool-bar"
+    :style="style"
+    @dblclick.stop.prevent
+    @contextmenu.stop.prevent
+    @mousedown.stop.prevent
+  >
     <div class="bar-list">
       <div
         class="bar-item"
@@ -67,7 +73,7 @@
         @mousedown.stop.prevent
         @click.stop.prevent="triggerBarItem(item)"
       >
-        <i :class="['iconfont', item.icon]" :alt="item.text" :title="item.text"></i>
+        <i :class="['iconfont', item.icon]" :title="item.text"></i>
       </div>
     </div>
   </div>
@@ -214,20 +220,6 @@ export default {
         }
       })
       _t.barList = tmpArr
-    },
-    // 处理操作
-    handleAction: function (actionName) {
-      console.log('actionName', actionName)
-      switch (actionName) {
-        case 'fold':
-          // 广播事件
-          utils.bus.$emit('XFormEditor/expand/toggle/all', true)
-          break
-        case 'expand':
-          // 广播事件
-          utils.bus.$emit('XFormEditor/expand/toggle/all', false)
-          break
-      }
     },
     // 触发菜单
     triggerBarItem: function (info) {
