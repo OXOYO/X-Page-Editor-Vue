@@ -28,7 +28,6 @@
       v-if="info.icon"
       :class="['context-menu-icon', 'iconfont', info.icon.type]"
       :style="info.icon.style"
-      :alt="info.text"
       :title="info.text"
     >
     </i>
