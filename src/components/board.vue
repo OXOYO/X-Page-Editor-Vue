@@ -48,7 +48,7 @@
 <template>
   <div
     :class="{'x-form-editor_board': true, 'draw-guides_x': guides.status.move && guides.type === 'x', 'draw-guides_y': guides.status.move && guides.type === 'y' }"
-    @dblclick="toggleExpand"
+    @dblclick.stop.prevent="toggleExpand"
     @contextmenu.stop.prevent="handlerRightClick($event)"
     @mousemove.stop.prevent="handleMouseMoveOnBoard($event)"
     @mouseup.stop.prevent="handleMouseUpOnBoard($event)"
