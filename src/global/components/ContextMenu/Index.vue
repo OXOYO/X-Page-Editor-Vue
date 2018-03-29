@@ -167,7 +167,7 @@ export default {
   },
   created: function () {
     let _t = this
-    // TODO 监听菜单打开
+    // 监听菜单打开
     utils.bus.$on('XFormEditor/contextMenu/show', function (val) {
       console.log('contextMenu show data', val)
       if (val) {

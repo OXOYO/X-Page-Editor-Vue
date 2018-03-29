@@ -48,18 +48,40 @@
     .guides_x {
       position: absolute;
       top: 0;
-      width: 100%;
       height: 1px;
       background: #4AFFFF;
-      cursor: ns-resize;
+      cursor: row-resize;
+
+      &:after {
+        content: ' ';
+        position: absolute;
+        z-index: -1;
+        top: -1px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: transparent;
+      }
     }
     .guides_y {
       position: absolute;
       left: 0;
       width: 1px;
-      height: 100%;
       background: #4AFFFF;
-      cursor: ew-resize;
+      cursor: col-resize;
+
+      &:after {
+        content: ' ';
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: -1px;
+        height: 3px;
+        background: transparent;
+      }
     }
   }
 </style>
@@ -71,8 +93,9 @@
       <div
         class="scale_item"
         v-for="(item, index) in scaleList.x"
-        :key="index"
+        :key="'scale_x_' + index"
         :style="item.style"
+        :type="item.type"
       >
         {{ item.text }}
       </div>
@@ -81,7 +104,7 @@
       <div
         class="scale_item"
         v-for="(item, index) in scaleList.y"
-        :key="index"
+        :key="'scale_y_' + index"
         :style="item.style"
       >
         {{ item.text }}
@@ -90,20 +113,26 @@
     <!-- 参考线 -->
     <div
       class="guides_x"
-      v-for="(item, index) in guidesList.x"
-      :key="index"
-      :style="item.style"
+      v-for="item in guidesMap.x"
+      :key="item.key"
+      :guides_key="item.key"
+      :style="[{ 'width': width + 'px' }, item.style ]"
       :alt="item.text"
       :title="item.text"
+      :type="item.type"
+      @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
     >
     </div>
     <div
       class="guides_y"
-      v-for="(item, index) in guidesList.x"
-      :key="index"
-      :style="item.style"
+      v-for="item in guidesMap.y"
+      :key="item.key"
+      :guides_key="item.key"
+      :style="[{ 'height': height + 'px' }, item.style ]"
       :alt="item.text"
       :title="item.text"
+      :type="item.type"
+      @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
     >
     </div>
   </div>
@@ -140,8 +169,13 @@ export default {
       },
       // 参考线列表
       guidesList: {
-        x: [],
-        y: []
+        x: {},
+        y: {}
+      },
+      // 参考线map
+      guidesMap: {
+        x: {},
+        y: {}
       },
       // 缩放级别
       zoom: {
@@ -196,15 +230,16 @@ export default {
         _t.scaleList.y = tmpArr
       }
     },
-    // FIXME !!! 画参考线的逻辑需从新考虑
+    // 处理刻度尺上mousedown事件
     handleMouseDownOnScale: function (type, event) {
-      if (type === 'x') {
-        console.log('handleMouseDownOnScale type', type, event.offsetY)
-      } else if (type === 'y') {
-        console.log('handleMouseDownOnScale type', type, event.offsetX)
-      }
+      // 开始画线
+      let timeNow = new Date().getTime()
+      // 生成key
+      let key = ['guides', type, timeNow].join('_')
       // 广播事件
-      utils.bus.$emit('XFormEditor/scale/guides/add', {
+      utils.bus.$emit('XFormEditor/scale/guides/add/start', {
+        // 参考线key
+        key: key,
         // 参考线类别
         type: type,
         // 状态
@@ -224,12 +259,12 @@ export default {
         condition: {
           draw: function (type, currentPosition, startPosition) {
             if (type === 'x') {
-              if (currentPosition.y - startPosition.y > 18) {
+              if (currentPosition.y - startPosition.y > 5) {
                 return true
               }
               return false
             } else if (type === 'y') {
-              if (currentPosition.x - startPosition.x > 18) {
+              if (currentPosition.x - startPosition.x > 5) {
                 return true
               }
               return false
@@ -238,14 +273,90 @@ export default {
         }
       })
     },
-    handleMouseMoveOnScale: function (type) {
-      console.log('handleMouseMoveOnScale type', type)
+    // 处理参考线上mousedown事件
+    handleMouseDownOnGuides: function (item, event) {
+      // 广播事件
+      utils.bus.$emit('XFormEditor/scale/guides/edit/start', {
+        // 参考线key
+        key: item.key,
+        // 参考线类别
+        type: item.type,
+        // 状态
+        status: {
+          start: true,
+          move: false,
+          end: false
+        },
+        // 位置
+        position: {
+          start: {
+            x: event.offsetX,
+            y: event.offsetY
+          }
+        },
+        // 条件
+        condition: {
+          draw: function (type, currentPosition, startPosition) {
+            if (type === 'x') {
+              if (currentPosition.y - startPosition.y > 5) {
+                return true
+              }
+              return false
+            } else if (type === 'y') {
+              if (currentPosition.x - startPosition.x > 5) {
+                return true
+              }
+              return false
+            }
+          }
+        }
+      })
+    },
+    // 处理参考线移动
+    handleGuidesMove: function (info) {
+      let _t = this
+      if (!info.status.start || !info.status.move) {
+        return
+      }
+      // 开始画线
+      let timeNow = new Date().getTime()
+      // 1.处理key
+      info.key = info.key || ['guides', info.type, timeNow].join('_')
+      let leftVal = info.position.move.x + 'px'
+      let topVal = info.position.move.y + 'px'
+      // 判断当前key是否已存在
+      if (info.type === 'x') {
+        _t.guidesList[info.type][info.key] = {
+          key: info.key,
+          type: info.type,
+          text: topVal,
+          style: {
+            top: topVal
+          }
+        }
+      } else if (info.type === 'y') {
+        _t.guidesList[info.type][info.key] = {
+          key: info.key,
+          type: info.type,
+          text: leftVal,
+          style: {
+            left: leftVal
+          }
+        }
+      }
+      _t.guidesMap = JSON.parse(JSON.stringify(_t.guidesList))
     }
   },
   created: function () {
+    let _t = this
     // 监听事件
-    utils.bus.$on('XFormEditor/scale/guides/move', function (val) {
-      console.log('XFormEditor/scale/guides/move', val)
+    utils.bus.$on('XFormEditor/scale/guides/move', function (info) {
+      _t.handleGuidesMove(info)
+    })
+    utils.bus.$on('XFormEditor/scale/guides/stop', function (info) {
+      if (!info.status.start && !info.status.move && info.status.end) {
+        _t.guidesMap = JSON.parse(JSON.stringify(_t.guidesList))
+      }
     })
   }
 }

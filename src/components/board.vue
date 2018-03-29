@@ -16,6 +16,13 @@
     display: inline-block;
     z-index: 1000;
 
+    &.draw-guides_x {
+      cursor: row-resize;
+    }
+    &.draw-guides_y {
+      cursor: col-resize;
+    }
+
     .block_body {
       position: absolute;
       top: 0;
@@ -40,10 +47,11 @@
 
 <template>
   <div
-    class="x-form-editor_board"
+    :class="{'x-form-editor_board': true, 'draw-guides_x': guides.status.move && guides.type === 'x', 'draw-guides_y': guides.status.move && guides.type === 'y' }"
     @dblclick="toggleExpand"
     @contextmenu.stop.prevent="handlerRightClick($event)"
     @mousemove.stop.prevent="handleMouseMoveOnBoard($event)"
+    @mouseup.stop.prevent="handleMouseUpOnBoard($event)"
   >
     <div class="block_body">
       <h1>TODO Board</h1>
@@ -177,23 +185,33 @@ export default {
     },
     handleMouseMoveOnBoard: function (event) {
       let _t = this
+      // utils.throttle(function () {
       // 判断是否开始拖拽参考线
       if (_t.guides.status.start) {
-        console.log('handleMouseMoveOnBoard type', _t.guides.type)
+        // 更新标识
+        _t.guides.status.move = true
+        // console.log('handleMouseMoveOnBoard type', _t.guides.type)
         // 依据移动距离判断是否可以开始画线
         if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
-          let currentPostion = {
+          let currentPosition = {
             x: event.offsetX,
             y: event.offsetY
           }
-          if (_t.guides.condition.draw(_t.guides.type, currentPostion, _t.guides.position.start)) {
-            utils.bus.$emit('XFormEditor/scale/guides/move', {
-              id: '',
-              position: currentPostion
-            })
+          if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
+            _t.guides.position['move'] = currentPosition
+            utils.bus.$emit('XFormEditor/scale/guides/move', _t.guides)
           }
         }
       }
+      // }, 100)
+    },
+    handleMouseUpOnBoard: function (event) {
+      let _t = this
+      // 更新标识
+      _t.guides.status.start = false
+      _t.guides.status.move = false
+      _t.guides.status.end = true
+      utils.bus.$emit('XFormEditor/scale/guides/stop', _t.guides)
     }
   },
   created: function () {
@@ -202,8 +220,11 @@ export default {
     utils.bus.$on('XFormEditor/expand/toggle/all', function (val) {
       _t.isExpand = val
     })
-    utils.bus.$on('XFormEditor/scale/guides/add', function (val) {
-      _t.guides = val
+    utils.bus.$on('XFormEditor/scale/guides/add/start', function (info) {
+      _t.guides = info
+    })
+    utils.bus.$on('XFormEditor/scale/guides/edit/start', function (info) {
+      _t.guides = info
     })
   },
   mounted: function () {
