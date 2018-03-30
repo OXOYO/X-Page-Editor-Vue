@@ -1,6 +1,6 @@
 # X-Page-Editor
 
-> A form editor plugin based on vue.
+> A page editor plugin based on vue.
 
 ## Example
 
