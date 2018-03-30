@@ -5,7 +5,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_list {
+  .xpe_list {
     position: absolute;
     top: 0px;
     bottom: 0;
@@ -65,7 +65,7 @@
 </style>
 
 <template>
-  <div :class="{'x-form-editor_list': true, 'block_expand': isExpand}">
+  <div :class="{'xpe_list': true, 'block_expand': isExpand}">
     <div class="block_header">
       <div class="title">
         资源列表
@@ -74,22 +74,27 @@
     <div class="block_body">
       <div class="list_item" v-for="(value, key) in config.data" :key="key">{{ key }}</div>
     </div>
-    <XFormEditorHandler class="handler" mode="vertical" position="right" :expand="isExpand" :callback="toggleHandler"></XFormEditorHandler>
+    <XPEHandler class="handler" mode="vertical" position="right" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
   </div>
 </template>
 
 <script>
-import XFormEditorHandler from '../global/components/handler.vue'
+import XPEHandler from '../global/components/Handler.vue'
+
+import defConfig from '../config'
 import utils from '../global/utils'
 
 export default {
-  name: 'XFormEditorList',
+  name: 'XPEList',
   components: {
-    XFormEditorHandler
+    XPEHandler
   },
   props: {
     config: {
-      type: Object
+      type: Object,
+      default: function () {
+        return defConfig.UI.list
+      }
     }
   },
   data () {
@@ -106,7 +111,7 @@ export default {
       _t.$nextTick(function () {
         let elWidth = _t.isExpand ? _t.$el.offsetWidth : 0
         // 广播事件
-        utils.bus.$emit('XFormEditor/expand/toggle/single', {
+        utils.bus.$emit('XPE/expand/toggle/single', {
           position: 'left',
           val: {
             left: elWidth
@@ -119,7 +124,7 @@ export default {
     let _t = this
     console.log('List Config::', _t.config)
     // 监听事件
-    utils.bus.$on('XFormEditor/expand/toggle/all', function (val) {
+    utils.bus.$on('XPE/expand/toggle/all', function (val) {
       _t.toggleHandler(val)
     })
   }

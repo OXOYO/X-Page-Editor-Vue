@@ -2,22 +2,22 @@
  * Created by OXOYO on 2018/3/21.
  */
 
-import FormEditor from './components/index.vue'
+import XPageEditor from './components/Index.vue'
 
-const XFormEditor = {}
+const XPE = {}
 
-XFormEditor.installed = false
-XFormEditor.install = function (Vue) {
-  if (XFormEditor.installed) {
+XPE.installed = false
+XPE.install = function (Vue) {
+  if (XPE.installed) {
     return
   }
 
-  Vue.component('XFormEditor', FormEditor)
-  XFormEditor.installed = true
+  Vue.component('XPageEditor', XPageEditor)
+  XPE.installed = true
 }
 
 if (typeof window !== 'undefined' && window.Vue) {
-  window.Vue.use(XFormEditor)
+  window.Vue.use(XPE)
 }
 
-export default XFormEditor
+export default XPE

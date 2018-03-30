@@ -5,7 +5,7 @@
 */
 
 <style lang="less" rel="stylesheet/less">
-  .app-context-menu {
+  .xpe-context-menu {
     position: absolute;
     min-width: 120px;
     width: auto !important;
@@ -87,7 +87,7 @@
 <template>
   <div
     v-if="contextMenuInfo.isShow"
-    class="app-context-menu"
+    class="xpe-context-menu"
     :style="contextMenuStyle"
     @mousedown.stop.prevent
     @click.stop.prevent
@@ -128,7 +128,7 @@ import ContextMenuItem from './ContextMenuItem.vue'
 import utils from '../../utils'
 
 export default {
-  name: 'XFormEditorContextMenu',
+  name: 'XPEContextMenu',
   components: {
     ContextMenuItem
   },
@@ -168,14 +168,14 @@ export default {
   created: function () {
     let _t = this
     // 监听菜单打开
-    utils.bus.$on('XFormEditor/contextMenu/show', function (val) {
+    utils.bus.$on('XPE/contextMenu/show', function (val) {
       console.log('contextMenu show data', val)
       if (val) {
         _t.contextMenuInfo = val
       }
       _t.contextMenuInfo.isShow = true
     })
-    utils.bus.$on('XFormEditor/contextMenu/hide', function (val) {
+    utils.bus.$on('XPE/contextMenu/hide', function (val) {
       console.log('contextMenu hide data', val)
       // 重置 contextMenuInfo
       _t.contextMenuInfo = {
@@ -188,8 +188,8 @@ export default {
   beforeDestroy: function () {
     // let _t = this
     utils.bus.$off([
-      'XFormEditor/contextMenu/show',
-      'XFormEditor/contextMenu/hide'
+      'XPE/contextMenu/show',
+      'XPE/contextMenu/hide'
     ])
   }
 }

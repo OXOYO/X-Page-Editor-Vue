@@ -5,7 +5,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_header {
+  .xpe_header {
     position: absolute;
     top: 0;
     right: 0;
@@ -78,35 +78,45 @@
 </style>
 
 <template>
-  <div :class="{'x-form-editor_header': true, 'block_expand': isExpand}">
-    <div class="block_header">
-      <div class="title">X-Form-Editor</div>
+  <div :class="{'xpe_header': true, 'block_expand': isExpand}">
+    <div class="block_header" v-if="config.title.enable">
+      <div class="title">{{ config.title.text }}</div>
     </div>
     <div class="block_body">
       <div class="btn-group">
         <!-- TODO 上传UI效果图，进行UI图与界面的比对 -->
-        <XFormEditorButton type="text" class="btn-item">
+        <XPEButton type="text" class="btn-item">
           <i class="iconfont icon-ui" title="UI" @mousedown.stop.prevent @click.stop.prevent="handleUI"></i>
-        </XFormEditorButton>
-        <XFormEditorButton type="text" class="btn-item">
+        </XPEButton>
+        <XPEButton type="text" class="btn-item">
           <i class="iconfont icon-preview" title="预览" @mousedown.stop.prevent @click.stop.prevent="handlePreview"></i>
-        </XFormEditorButton>
+        </XPEButton>
       </div>
     </div>
-    <XFormEditorHandler class="handler" mode="horizontal" position="bottom" :expand="isExpand" :callback="toggleHandler"></XFormEditorHandler>
+    <XPEHandler class="handler" mode="horizontal" position="bottom" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
   </div>
 </template>
 
 <script>
-import XFormEditorHandler from '../global/components/handler.vue'
-import XFormEditorButton from '../global/components/button.vue'
+import XPEHandler from '../global/components/Handler.vue'
+import XPEButton from '../global/components/Button.vue'
+
+import defConfig from '../config'
 import utils from '../global/utils'
 
 export default {
-  name: 'XFormEditorHeader',
+  name: 'XPEHeader',
   components: {
-    XFormEditorHandler,
-    XFormEditorButton
+    XPEHandler,
+    XPEButton
+  },
+  props: {
+    config: {
+      type: Object,
+      default: function () {
+        return defConfig.UI.header
+      }
+    }
   },
   data () {
     return {
@@ -122,7 +132,7 @@ export default {
       _t.$nextTick(function () {
         let elHeight = _t.isExpand ? _t.$el.offsetHeight : 0
         // 广播事件
-        utils.bus.$emit('XFormEditor/expand/toggle/single', {
+        utils.bus.$emit('XPE/expand/toggle/single', {
           position: 'top',
           val: {
             top: elHeight
@@ -140,7 +150,7 @@ export default {
   created: function () {
     let _t = this
     // 监听事件
-    utils.bus.$on('XFormEditor/expand/toggle/all', function (val) {
+    utils.bus.$on('XPE/expand/toggle/all', function (val) {
       _t.toggleHandler(val)
     })
   }

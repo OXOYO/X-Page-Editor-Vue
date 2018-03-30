@@ -5,7 +5,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_tool-bar {
+  .xpe_tool-bar {
     display: inline-block;
     position: absolute;
     z-index: 2500;
@@ -13,7 +13,7 @@
     border: 1px solid #dddddd;
     overflow: hidden;
     transition: all .5s ease-in .1s;
-    box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.1);
 
     .bar-list {
       display: inline-block;
@@ -58,7 +58,7 @@
 
 <template>
   <div
-    class="x-form-editor_tool-bar"
+    class="xpe_tool-bar"
     :style="style"
     @dblclick.stop.prevent
     @contextmenu.stop.prevent
@@ -84,7 +84,7 @@ import defConfig from '../../config'
 import utils from '../utils'
 
 export default {
-  name: 'XFormEditorToolBar',
+  name: 'XPEToolBar',
   props: {
     config: {
       type: Object,
@@ -110,7 +110,7 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XFormEditor/expand/toggle/all',
+            handler: 'XPE/expand/toggle/all',
             params: false
           }
         },
@@ -122,7 +122,7 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XFormEditor/expand/toggle/all',
+            handler: 'XPE/expand/toggle/all',
             params: true
           }
         },
@@ -134,7 +134,7 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XFormEditor/board/zoom/in'
+            handler: 'XPE/board/zoom/in'
           }
         },
         {
@@ -145,7 +145,7 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XFormEditor/board/zoom/out'
+            handler: 'XPE/board/zoom/out'
           }
         }
       ],
@@ -240,7 +240,7 @@ export default {
     // 初始化
     _t.init()
     // 监听事件
-    utils.bus.$on('XFormEditor/expand/toggle/single', function (data) {
+    utils.bus.$on('XPE/expand/toggle/single', function (data) {
       let tmpObj = {}
       if (data && data.position) {
         switch (_t.config.position) {

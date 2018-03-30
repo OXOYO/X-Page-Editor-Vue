@@ -1,4 +1,4 @@
-# X-Form-Editor-Vue
+# X-Page-Editor
 
 > A form editor plugin based on vue.
 
@@ -14,9 +14,9 @@ npm run dev
 
 ## Preview
 
-![X-Form-Editor-Vue](./docs/preview_001.png)
+![X-Page-Editor](./docs/preview_001.png)
 
-![X-Form-Editor-Vue](./docs/preview_002.png)
+![X-Page-Editor](./docs/preview_002.png)
 
 ## Use
 
@@ -27,6 +27,8 @@ npm run dev
 ## TODO
 - [x] 实现FormEditor基础骨架
 - [x] 完善配置，支持自定义基础组件
+- [x] 统一命名规范
+- [x] 更名为X-Page-Editor
 - [ ] 完善基础组件
 - [ ] 完善example
 - [ ] npm 发布

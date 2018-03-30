@@ -5,12 +5,21 @@
  */
 
 export default {
+  // 命名空间
+  namespace: 'XPE',
   // 自定义编辑器内相关UI
   UI: {
     // 编辑器功能：头部组件
     header: {
       // 是否启用该功能，true: 启用 false: 不启用
       enable: true,
+      // 标题配置
+      title: {
+        enable: true,
+        text: 'XPE',
+        fullText: 'X-Page-Editor',
+        subText: 'x-page-editor'
+      },
       // 该功能数据源
       data: [],
       // 初始化数据

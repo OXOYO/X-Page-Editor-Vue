@@ -4,7 +4,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_handler {
+  .xpe_handler {
     display: inline-block;
     position: absolute;
     background: #ffffff;
@@ -80,7 +80,7 @@
 
 <script>
 export default {
-  name: 'XFormEditorHandler',
+  name: 'XPEHandler',
   props: {
     // 模式
     mode: {
@@ -111,7 +111,7 @@ export default {
   computed: {
     className: function () {
       let _t = this
-      return ['x-form-editor_handler', _t.mode, _t.position, _t.expand]
+      return ['xpe_handler', _t.mode, _t.position, _t.expand]
     }
   },
   methods: {

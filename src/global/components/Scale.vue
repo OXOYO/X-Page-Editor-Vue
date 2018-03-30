@@ -5,7 +5,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_scale {
+  .xpe_scale {
     display: inline-block;
     position: absolute;
     top: 0;
@@ -17,6 +17,7 @@
     .scale_x {
       position: absolute;
       left: 0;
+      z-index: 2500;
       width: 100%;
       height: 18px;
       background: url('../../assets/scale_x.png') repeat-x;
@@ -28,6 +29,7 @@
     .scale_y {
       position: absolute;
       top: 0;
+      z-index: 2500;
       width: 18px;
       height: 100%;
       background: url('../../assets/scale_y.png') repeat-y;
@@ -48,6 +50,7 @@
     .guides_x {
       position: absolute;
       top: 0;
+      z-index: 2500;
       height: 1px;
       background: #4AFFFF;
       cursor: row-resize;
@@ -67,6 +70,7 @@
     .guides_y {
       position: absolute;
       left: 0;
+      z-index: 2500;
       width: 1px;
       background: #4AFFFF;
       cursor: col-resize;
@@ -87,7 +91,7 @@
 </style>
 
 <template>
-  <div class="x-form-editor_scale">
+  <div class="xpe_scale">
     <!-- 刻度尺 -->
     <div class="scale_x" :style="{ 'width': width + 'px' }" @mousedown.stop.prevent="handleMouseDownOnScale('x', $event)">
       <div
@@ -141,7 +145,7 @@ import defConfig from '../../config'
 import utils from '../utils'
 
 export default {
-  name: 'XFormEditorScale',
+  name: 'XPEScale',
   props: {
     config: {
       type: Object,
@@ -235,7 +239,7 @@ export default {
       // 生成key
       let key = ['guides', type, timeNow].join('_')
       // 广播事件
-      utils.bus.$emit('XFormEditor/scale/guides/add/start', {
+      utils.bus.$emit('XPE/scale/guides/add/start', {
         // 参考线key
         key: key,
         // 参考线类别
@@ -274,7 +278,7 @@ export default {
     // 处理参考线上mousedown事件
     handleMouseDownOnGuides: function (item, event) {
       // 广播事件
-      utils.bus.$emit('XFormEditor/scale/guides/edit/start', {
+      utils.bus.$emit('XPE/scale/guides/edit/start', {
         // 参考线key
         key: item.key,
         // 参考线类别
@@ -348,15 +352,15 @@ export default {
   created: function () {
     let _t = this
     // 监听事件
-    utils.bus.$on('XFormEditor/scale/guides/move', function (info) {
+    utils.bus.$on('XPE/scale/guides/move', function (info) {
       _t.handleGuidesMove(info)
     })
-    utils.bus.$on('XFormEditor/scale/guides/stop', function (info) {
+    utils.bus.$on('XPE/scale/guides/stop', function (info) {
       if (!info.status.start && !info.status.move && info.status.end) {
         _t.guidesMap = JSON.parse(JSON.stringify(_t.guidesList))
       }
     })
-    utils.bus.$on('XFormEditor/board/clear', function () {
+    utils.bus.$on('XPE/board/clear', function () {
       // 清空画板
       _t.guidesMap = _t._t.guidesList = {
         x: {},

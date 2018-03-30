@@ -4,7 +4,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_footer {
+  .xpe_footer {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -62,24 +62,34 @@
 </style>
 
 <template>
-  <div :class="{'x-form-editor_footer': true, 'block_expand': isExpand}">
+  <div :class="{'xpe_footer': true, 'block_expand': isExpand}">
     <div class="block_body">
-      <XFormEditorButton type="primary">SAVE</XFormEditorButton>
+      <XPEButton type="primary">SAVE</XPEButton>
     </div>
-    <XFormEditorHandler class="handler" mode="horizontal" position="top" :expand="isExpand" :callback="toggleHandler"></XFormEditorHandler>
+    <XPEHandler class="handler" mode="horizontal" position="top" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
   </div>
 </template>
 
 <script>
-import XFormEditorHandler from '../global/components/handler.vue'
-import XFormEditorButton from '../global/components/button.vue'
+import XPEHandler from '../global/components/Handler.vue'
+import XPEButton from '../global/components/Button.vue'
+
+import defConfig from '../config'
 import utils from '../global/utils'
 
 export default {
-  name: 'XFormEditorFooter',
+  name: 'XPEFooter',
   components: {
-    XFormEditorHandler,
-    XFormEditorButton
+    XPEHandler,
+    XPEButton
+  },
+  props: {
+    config: {
+      type: Object,
+      default: function () {
+        return defConfig.UI.footer
+      }
+    }
   },
   data () {
     return {
@@ -95,7 +105,7 @@ export default {
       _t.$nextTick(function () {
         let elHeight = _t.isExpand ? _t.$el.offsetHeight : 0
         // 广播事件
-        utils.bus.$emit('XFormEditor/expand/toggle/single', {
+        utils.bus.$emit('XPE/expand/toggle/single', {
           position: 'bottom',
           val: {
             bottom: elHeight
@@ -107,7 +117,7 @@ export default {
   created: function () {
     let _t = this
     // 监听事件
-    utils.bus.$on('XFormEditor/expand/toggle/all', function (val) {
+    utils.bus.$on('XPE/expand/toggle/all', function (val) {
       _t.toggleHandler(val)
     })
   }

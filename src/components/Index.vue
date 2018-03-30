@@ -5,7 +5,14 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor {
+  article, aside, blockquote, body, button, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, section, td, textarea, th, ul {
+    margin: 0;
+    padding: 0;
+  }
+  *, :after, :before {
+    box-sizing: border-box;
+  }
+  .xpe {
     position: relative;
     width: 100%;
     height: 100%;
@@ -19,58 +26,51 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  article, aside, blockquote, body, button, dd, details, div, dl, dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, hr, input, legend, li, menu, nav, ol, p, section, td, textarea, th, ul {
-    margin: 0;
-    padding: 0;
-  }
-  *, :after, :before {
-    box-sizing: border-box;
-  }
 </style>
 
 <template>
-  <div class="x-form-editor" @contextmenu.stop.prevent @mousedown.stop.prevent="handleMouseDown">
+  <div class="xpe" @contextmenu.stop.prevent @mousedown.stop.prevent="handleMouseDown">
     <slot name="header" v-if="mergeConfig.UI.header.enable">
-      <XFormEditorHeader></XFormEditorHeader>
+      <XPEHeader :config="mergeConfig.UI.header"></XPEHeader>
     </slot>
     <slot name="list" v-if="mergeConfig.UI.list.enable">
-      <XFormEditorList :config="mergeConfig.UI.list"></XFormEditorList>
+      <XPEList :config="mergeConfig.UI.list"></XPEList>
     </slot>
     <slot name="board" v-if="mergeConfig.UI.board.enable">
-      <XFormEditorBoard :config="mergeConfig.UI.board"></XFormEditorBoard>
+      <XPEBoard :config="mergeConfig.UI.board"></XPEBoard>
     </slot>
     <slot name="options" v-if="mergeConfig.UI.options.enable">
-      <XFormEditorOptions></XFormEditorOptions>
+      <XPEOptions :config="mergeConfig.UI.options"></XPEOptions>
     </slot>
     <slot name="footer" v-if="mergeConfig.UI.footer.enable">
-      <XFormEditorFooter></XFormEditorFooter>
+      <XPEFooter :config="mergeConfig.UI.footer"></XPEFooter>
     </slot>
-    <XFormEditorContextMenu></XFormEditorContextMenu>
+    <XPEContextMenu></XPEContextMenu>
   </div>
 </template>
 
 <script>
 import '../global/icon/iconfont.css'
 
-import XFormEditorHeader from './header.vue'
-import XFormEditorList from './list.vue'
-import XFormEditorBoard from './board.vue'
-import XFormEditorOptions from './options.vue'
-import XFormEditorFooter from './footer.vue'
-import XFormEditorContextMenu from '../global/components/ContextMenu/Index.vue'
+import XPEHeader from './Header.vue'
+import XPEList from './List.vue'
+import XPEBoard from './Board.vue'
+import XPEOptions from './Options.vue'
+import XPEFooter from './Footer.vue'
+import XPEContextMenu from '../global/components/ContextMenu/Index.vue'
 
 import defConfig from '../config'
 import utils from '../global/utils'
 
 export default {
-  name: 'XFormEditor',
+  name: 'XPE',
   components: {
-    XFormEditorHeader,
-    XFormEditorList,
-    XFormEditorBoard,
-    XFormEditorOptions,
-    XFormEditorFooter,
-    XFormEditorContextMenu
+    XPEHeader,
+    XPEList,
+    XPEBoard,
+    XPEOptions,
+    XPEFooter,
+    XPEContextMenu
   },
   props: {
     config: {
@@ -103,7 +103,7 @@ export default {
     // 鼠标点击事件
     handleMouseDown: function () {
       // 关闭菜单
-      utils.bus.$emit('XFormEditor/contextMenu/hide')
+      utils.bus.$emit('XPE/contextMenu/hide')
     }
   },
   created: function () {

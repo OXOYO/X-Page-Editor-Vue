@@ -13,7 +13,7 @@
     color: #2c3e50;
     margin-top: 60px;
   }
-  .form-editor-example {
+  .page-editor-example {
     width: 100%;
     height: 800px;
   }
@@ -22,17 +22,17 @@
 <template>
   <div id="app">
     <!--<img src="./assets/logo.png">-->
-    <div class="form-editor-example">
-      <XFormEditor :config="formEditorConfig">
+    <div class="page-editor-example">
+      <XPageEditor :config="pageEditorConfig">
         <!-- 自定义元素列表组件 -->
         <!--<CustomList slot="list"></CustomList>-->
-      </XFormEditor>
+      </XPageEditor>
     </div>
   </div>
 </template>
 
 <script>
-import CustomList from './components/list.vue'
+import CustomList from './components/CustomList.vue'
 import Resources from './resources'
 
 export default {
@@ -42,13 +42,20 @@ export default {
   },
   data () {
     return {
-      formEditorConfig: {
+      pageEditorConfig: {
         // 自定义编辑器内相关UI
         UI: {
           // 编辑器功能：头部组件
           header: {
             // 是否启用该功能，true: 启用 false: 不启用
             enable: true,
+            // 标题配置
+            title: {
+              enable: true,
+              text: 'XPE',
+              fullText: 'X-Page-Editor',
+              subText: 'x-page-editor'
+            },
             // 该功能数据源
             data: [],
             // 初始化数据

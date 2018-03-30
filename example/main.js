@@ -2,8 +2,8 @@ import Vue from 'vue'
 import App from './App'
 
 // 导入XFormEditor
-import XFormEditor from '../src/index'
-Vue.use(XFormEditor)
+import XPageEditor from '../src/index'
+Vue.use(XPageEditor)
 
 // Vue 全局配置
 let isDev = process && process.env.NODE_ENV !== 'production'

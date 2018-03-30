@@ -77,7 +77,7 @@ export default {
         }
       }
       // 广播事件，关闭菜单
-      utils.bus.$emit('XFormEditor/contextMenu/hide')
+      utils.bus.$emit('XPE/contextMenu/hide')
     }
   }
 }

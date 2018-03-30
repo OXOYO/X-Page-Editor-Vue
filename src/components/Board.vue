@@ -5,7 +5,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_board {
+  .xpe_board {
     position: absolute;
     top: 0;
     right: 0;
@@ -15,6 +15,7 @@
     padding: 0;
     display: inline-block;
     z-index: 1000;
+    overflow: hidden;
 
     &.draw-guides_x {
       cursor: row-resize;
@@ -33,6 +34,7 @@
       background-image: linear-gradient(45deg, #f5f5f5 25%, transparent 0, transparent 75%, #f5f5f5 0), linear-gradient(45deg, #f5f5f5 25%, transparent 0, transparent 75%, #f5f5f5 0);
       background-position: 0 0, 10px 10px;
       background-size: 20px 20px;
+      overflow: auto;
 
       .list_item {
         height: 20px;
@@ -43,11 +45,21 @@
       }
     }
   }
+  .canvas {
+    position: absolute;
+    z-index: 2000;
+    top: 100px;
+    left: 50%;
+    margin-left: -450px;
+    width: 900px;
+    height: 1000px;
+    background: #fff;
+  }
 </style>
 
 <template>
   <div
-    :class="{'x-form-editor_board': true, 'draw-guides_x': guides.status.move && guides.type === 'x', 'draw-guides_y': guides.status.move && guides.type === 'y' }"
+    :class="{'xpe_board': true, 'draw-guides_x': guides.status.move && guides.type === 'x', 'draw-guides_y': guides.status.move && guides.type === 'y' }"
     @dblclick.stop.prevent="toggleExpand"
     @contextmenu.stop.prevent="handlerRightClick($event)"
     @mousemove.stop.prevent="handleMouseMoveOnBoard($event)"
@@ -55,28 +67,30 @@
   >
     <div class="block_body">
       <h1>TODO Board</h1>
+      <!-- TODO 画布组件，可以考虑参照PS -->
+      <div class="canvas" @mousemove.stop.prevent="handleMouseMoveOnCanvas($event)"></div>
     </div>
     <slot name="toolBar" v-if="config.toolBar.enable">
-      <XFormEditorToolBar :config="config.toolBar" :expand="isExpand"></XFormEditorToolBar>
+      <XPEToolBar :config="config.toolBar" :expand="isExpand"></XPEToolBar>
     </slot>
     <slot name="scale" v-if="config.scale.enable">
-      <XFormEditorScale :config="config.scale" :width="boardWidth" :height="boardHeight"></XFormEditorScale>
+      <XPEScale :config="config.scale" :width="boardWidth" :height="boardHeight"></XPEScale>
     </slot>
   </div>
 </template>
 
 <script>
-import XFormEditorToolBar from '../global/components/toolBar.vue'
-import XFormEditorScale from '../global/components/scale.vue'
+import XPEToolBar from '../global/components/ToolBar.vue'
+import XPEScale from '../global/components/Scale.vue'
 
 import defConfig from '../config'
 import utils from '../global/utils'
 
 export default {
-  name: 'XFormEditorBoard',
+  name: 'XPEBoard',
   components: {
-    XFormEditorToolBar,
-    XFormEditorScale
+    XPEToolBar,
+    XPEScale
   },
   props: {
     config: {
@@ -123,7 +137,7 @@ export default {
       let _t = this
       _t.isExpand = !_t.isExpand
       // 广播事件
-      utils.bus.$emit('XFormEditor/expand/toggle/all', _t.isExpand)
+      utils.bus.$emit('XPE/expand/toggle/all', _t.isExpand)
     },
     // 桌面右键点击
     handlerRightClick: function (event) {
@@ -135,7 +149,7 @@ export default {
         isShow: true,
         x: xVal,
         y: yVal,
-        target: 'XFE_board',
+        target: 'XPE_board',
         list: [
           {
             name: 'expand',
@@ -147,7 +161,7 @@ export default {
             enable: _t.isExpand,
             action: {
               type: 'bus',
-              handler: 'XFormEditor/expand/toggle/all',
+              handler: 'XPE/expand/toggle/all',
               params: false
             }
           },
@@ -161,7 +175,7 @@ export default {
             enable: !_t.isExpand,
             action: {
               type: 'bus',
-              handler: 'XFormEditor/expand/toggle/all',
+              handler: 'XPE/expand/toggle/all',
               params: true
             }
           },
@@ -175,17 +189,16 @@ export default {
             enable: true,
             action: {
               type: 'bus',
-              handler: 'XFormEditor/board/clear'
+              handler: 'XPE/board/clear'
             }
           }
         ]
       }
       // 广播事件
-      utils.bus.$emit('XFormEditor/contextMenu/show', contextMenuInfo)
+      utils.bus.$emit('XPE/contextMenu/show', contextMenuInfo)
     },
     handleMouseMoveOnBoard: function (event) {
       let _t = this
-      // utils.throttle(function () {
       // 判断是否开始拖拽参考线
       if (_t.guides.status.start) {
         // 更新标识
@@ -199,11 +212,30 @@ export default {
           }
           if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
             _t.guides.position['move'] = currentPosition
-            utils.bus.$emit('XFormEditor/scale/guides/move', _t.guides)
+            utils.bus.$emit('XPE/scale/guides/move', _t.guides)
           }
         }
       }
-      // }, 100)
+    },
+    handleMouseMoveOnCanvas: function (event) {
+      let _t = this
+      // 判断是否开始拖拽参考线
+      if (_t.guides.status.start) {
+        // 更新标识
+        _t.guides.status.move = true
+        // console.log('handleMouseMoveOnBoard type', _t.guides.type)
+        // 依据移动距离判断是否可以开始画线
+        if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
+          let currentPosition = {
+            x: event.clientX,
+            y: event.clientY
+          }
+          if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
+            _t.guides.position['move'] = currentPosition
+            utils.bus.$emit('XPE/scale/guides/move', _t.guides)
+          }
+        }
+      }
     },
     handleMouseUpOnBoard: function (event) {
       let _t = this
@@ -211,19 +243,19 @@ export default {
       _t.guides.status.start = false
       _t.guides.status.move = false
       _t.guides.status.end = true
-      utils.bus.$emit('XFormEditor/scale/guides/stop', _t.guides)
+      utils.bus.$emit('XPE/scale/guides/stop', _t.guides)
     }
   },
   created: function () {
     let _t = this
     // 监听事件
-    utils.bus.$on('XFormEditor/expand/toggle/all', function (val) {
+    utils.bus.$on('XPE/expand/toggle/all', function (val) {
       _t.isExpand = val
     })
-    utils.bus.$on('XFormEditor/scale/guides/add/start', function (info) {
+    utils.bus.$on('XPE/scale/guides/add/start', function (info) {
       _t.guides = info
     })
-    utils.bus.$on('XFormEditor/scale/guides/edit/start', function (info) {
+    utils.bus.$on('XPE/scale/guides/edit/start', function (info) {
       _t.guides = info
     })
   },

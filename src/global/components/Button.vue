@@ -5,7 +5,7 @@
 */
 
 <style scoped lang="less" rel="stylesheet/less">
-  .x-form-editor_button {
+  .xpe_button {
     display: inline-block;
     margin-bottom: 0;
     font-weight: 400;
@@ -36,7 +36,7 @@
       border-color: #57a3f3;
     }
 
-    &.xfe-btn-primary {
+    &.xpe-btn-primary {
       color: #fff;
       background-color: #2d8cf0;
       border-color: #2d8cf0;
@@ -47,7 +47,7 @@
         border-color: #57a3f3;
       }
     }
-    &.xfe-btn-ghost {
+    &.xpe-btn-ghost {
       color: #495060;
       background-color: transparent;
       border-color: #dddee1;
@@ -58,7 +58,7 @@
         border-color: #57a3f3;
       }
     }
-    &.xfe-btn-dashed {
+    &.xpe-btn-dashed {
       color: #495060;
       background-color: transparent;
       border-color: #dddee1;
@@ -70,7 +70,7 @@
         border-color: #57a3f3;
       }
     }
-    &.xfe-btn-text {
+    &.xpe-btn-text {
       color: #495060;
       background-color: transparent;
       border-color: transparent;
@@ -81,7 +81,7 @@
         border-color: transparent;
       }
     }
-    &.xfe-btn-info {
+    &.xpe-btn-info {
       color: #fff;
       background-color: #2db7f5;
       border-color: #2db7f5;
@@ -92,7 +92,7 @@
         border-color: #57c5f7;
       }
     }
-    &.xfe-btn-success {
+    &.xpe-btn-success {
       color: #fff;
       background-color: #19be6b;
       border-color: #19be6b;
@@ -103,7 +103,7 @@
         border-color: #47cb89;
       }
     }
-    &.xfe-btn-warning {
+    &.xpe-btn-warning {
       color: #fff;
       background-color: #f90;
       border-color: #f90;
@@ -114,7 +114,7 @@
         border-color: #ffad33;
       }
     }
-    &.xfe-btn-error {
+    &.xpe-btn-error {
       color: #fff;
       background-color: #ed3f14;
       border-color: #ed3f14;
@@ -136,7 +136,7 @@
 
 <script>
 export default {
-  name: 'XFormEditorButton',
+  name: 'XPEButton',
   props: {
     type: {
       type: String,
@@ -148,8 +148,8 @@ export default {
   },
   data () {
     return {
-      prefix: 'xfe-btn',
-      defClass: 'x-form-editor_button'
+      prefix: 'xpe-btn',
+      defClass: 'xpe_button'
     }
   },
   computed: {
