@@ -14,6 +14,8 @@ npm run dev
 
 ## Preview
 
+[Demo](https://oxoyo.github.io/X-Page-Editor-Vue/)
+
 ![X-Page-Editor](./docs/preview_001.png)
 
 ![X-Page-Editor](./docs/preview_002.png)

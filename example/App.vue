@@ -21,6 +21,13 @@
 
 <template>
   <div id="app">
+    <a href="https://github.com/OXOYO/X-Page-Editor-Vue" target="_blank">
+      <img
+        style="position: absolute; top: 0; right: 0; border: 0; z-index: 5000"
+        src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
+        alt="Fork me on GitHub"
+      >
+    </a>
     <!--<img src="./assets/logo.png">-->
     <div class="page-editor-example">
       <XPageEditor :config="pageEditorConfig">
