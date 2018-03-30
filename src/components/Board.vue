@@ -227,8 +227,8 @@ export default {
         // 依据移动距离判断是否可以开始画线
         if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
           let currentPosition = {
-            x: event.clientX,
-            y: event.clientY
+            x: event.offsetX + event.target.offsetLeft,
+            y: event.offsetY + event.target.offsetTop
           }
           if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
             _t.guides.position['move'] = currentPosition
