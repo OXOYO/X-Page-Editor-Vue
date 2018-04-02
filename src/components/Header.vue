@@ -86,10 +86,10 @@
       <div class="btn-group">
         <!-- TODO 上传UI效果图，进行UI图与界面的比对 -->
         <XPEButton type="text" class="btn-item">
-          <i class="iconfont icon-ui" title="UI" @mousedown.stop.prevent @click.stop.prevent="handleUI"></i>
+          <XPEIcon type="ui" title="UI" @mousedown.stop.prevent @click.stop.prevent="handleUI"></XPEIcon>
         </XPEButton>
         <XPEButton type="text" class="btn-item">
-          <i class="iconfont icon-preview" title="预览" @mousedown.stop.prevent @click.stop.prevent="handlePreview"></i>
+          <XPEIcon type="preview" title="预览" @mousedown.stop.prevent @click.stop.prevent="handlePreview"></XPEIcon>
         </XPEButton>
       </div>
     </div>
@@ -99,7 +99,8 @@
 
 <script>
 import XPEHandler from '../global/components/Handler.vue'
-import XPEButton from '../global/components/Button.vue'
+import XPEButton from '../ui/Button.vue'
+import XPEIcon from '../ui/Icon.vue'
 
 import defConfig from '../config'
 import utils from '../global/utils'
@@ -108,7 +109,8 @@ export default {
   name: 'XPEHeader',
   components: {
     XPEHandler,
-    XPEButton
+    XPEButton,
+    XPEIcon
   },
   props: {
     config: {

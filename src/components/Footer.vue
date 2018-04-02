@@ -72,7 +72,7 @@
 
 <script>
 import XPEHandler from '../global/components/Handler.vue'
-import XPEButton from '../global/components/Button.vue'
+import XPEButton from '../ui/Button.vue'
 
 import defConfig from '../config'
 import utils from '../global/utils'
