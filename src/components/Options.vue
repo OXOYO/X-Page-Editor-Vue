@@ -10,8 +10,8 @@
     top: 0;
     right: 0;
     bottom: 0;
-    width: 400px;
-    margin-right: -400px;
+    /*width: 400px;*/
+    /*margin-right: -400px;*/
     padding-top: 50px;
     border-left: 1px solid #dddddd;
     display: inline-block;
@@ -57,7 +57,7 @@
 </style>
 
 <template>
-  <div :class="{'xpe_options': true, 'block_expand': isExpand}">
+  <div :class="{'xpe_options': true, 'block_expand': isExpand}" :style="computedStyle">
     <div class="block_header">
       <div class="title">TODO Options</div>
     </div>
@@ -91,6 +91,15 @@ export default {
     return {
       // 是否展开
       isExpand: true
+    }
+  },
+  computed: {
+    computedStyle: function () {
+      let _t = this
+      return {
+        ..._t.config.style,
+        'margin-right': _t.isExpand ? 0 : _t.config.style['margin-right']
+      }
     }
   },
   methods: {

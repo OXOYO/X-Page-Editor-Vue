@@ -10,8 +10,8 @@
     top: 0px;
     bottom: 0;
     left: 0;
-    width: 400px;
-    margin-left: -400px;
+    /*width: 400px;*/
+    /*margin-left: -400px;*/
     padding-top: 50px;
     border-right: 1px solid #dddddd;
     display: inline-block;
@@ -50,8 +50,10 @@
       right: 0;
       left: 0;
       bottom: 0;
+      padding: 20px 10px;
       z-index: 2000;
       background: #ffffff;
+      overflow-y: auto;
 
       .list_item {
         height: 20px;
@@ -65,14 +67,23 @@
 </style>
 
 <template>
-  <div :class="{'xpe_list': true, 'block_expand': isExpand}">
+  <div :class="{'xpe_list': true, 'block_expand': isExpand}" :style="computedStyle">
     <div class="block_header">
       <div class="title">
         资源列表
       </div>
     </div>
     <div class="block_body">
-      <div class="list_item" v-for="(value, key) in config.data" :key="key">{{ key }}</div>
+      <!--
+      <div
+        class="list_item"
+        v-for="(value, key) in config.data"
+        :key="key"
+      >
+        {{ key }}
+      </div>
+      -->
+      <slot></slot>
     </div>
     <XPEHandler class="handler" mode="vertical" position="right" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
   </div>
@@ -101,6 +112,15 @@ export default {
     return {
       // 是否展开
       isExpand: true
+    }
+  },
+  computed: {
+    computedStyle: function () {
+      let _t = this
+      return {
+        ..._t.config.style,
+        'margin-left': _t.isExpand ? 0 : _t.config.style['margin-left']
+      }
     }
   },
   methods: {

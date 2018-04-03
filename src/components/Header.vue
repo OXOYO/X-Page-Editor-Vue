@@ -83,14 +83,39 @@
       <div class="title">{{ config.title.text }}</div>
     </div>
     <div class="block_body">
+      <!-- tab -->
+      <div class="tab-group">
+        <div class="tab-item"></div>
+      </div>
       <div class="btn-group">
         <!-- TODO 上传UI效果图，进行UI图与界面的比对 -->
-        <XPEButton type="text" class="btn-item">
-          <XPEIcon type="ui" title="UI" @mousedown.stop.prevent @click.stop.prevent="handleUI"></XPEIcon>
-        </XPEButton>
-        <XPEButton type="text" class="btn-item">
-          <XPEIcon type="preview" title="预览" @mousedown.stop.prevent @click.stop.prevent="handlePreview"></XPEIcon>
-        </XPEButton>
+        <XUIButton
+          type="text"
+          class="btn-item"
+          @contextmenu.stop.prevent
+          @mousedown.stop.prevent
+          @click.stop.prevent.native="handleAction('addProject')"
+        >
+          <XPEIcon type="add-circle" title="新建项目"></XPEIcon>
+        </XUIButton>
+        <XUIButton
+          type="text"
+          class="btn-item"
+          @contextmenu.stop.prevent
+          @mousedown.stop.prevent
+          @click.stop.prevent.native="handleAction('ui')"
+        >
+          <XPEIcon type="ui" title="UI"></XPEIcon>
+        </XUIButton>
+        <XUIButton
+          type="text"
+          class="btn-item"
+          @contextmenu.stop.prevent
+          @mousedown.stop.prevent
+          @click.stop.prevent.native="handleAction('preview')"
+        >
+          <XPEIcon type="preview" title="预览"></XPEIcon>
+        </XUIButton>
       </div>
     </div>
     <XPEHandler class="handler" mode="horizontal" position="bottom" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
@@ -99,8 +124,6 @@
 
 <script>
 import XPEHandler from '../global/components/Handler.vue'
-import XPEButton from '../ui/Button.vue'
-import XPEIcon from '../ui/Icon.vue'
 
 import defConfig from '../config'
 import utils from '../global/utils'
@@ -108,9 +131,7 @@ import utils from '../global/utils'
 export default {
   name: 'XPEHeader',
   components: {
-    XPEHandler,
-    XPEButton,
-    XPEIcon
+    XPEHandler
   },
   props: {
     config: {
@@ -123,7 +144,9 @@ export default {
   data () {
     return {
       // 是否展开
-      isExpand: true
+      isExpand: true,
+      // tab列表数据
+      tabList: []
     }
   },
   methods: {
@@ -142,11 +165,16 @@ export default {
         })
       })
     },
-    handleUI: function () {
-      console.log('handleUI')
-    },
-    handlePreview: function () {
-      console.log('handlePreview')
+    handleAction: function (actionName) {
+      console.log('handleAction', actionName)
+      let handleAddProject = function () {
+        utils.bus.$emit('XPE/project/add')
+      }
+      switch (actionName) {
+        case 'addProject':
+          handleAddProject()
+          break
+      }
     }
   },
   created: function () {

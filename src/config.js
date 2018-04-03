@@ -32,7 +32,13 @@ export default {
       // 该功能数据源
       data: [],
       // 初始化数据
-      initData: []
+      initData: [],
+      // 样式
+      style: {
+        // width 和 margin-left 需同时设置
+        width: '400px',
+        'margin-left': '-400px'
+      }
     },
     // 编辑器功能：编辑器画板
     board: {
@@ -62,7 +68,13 @@ export default {
       // 该功能数据源
       data: [],
       // 初始化数据
-      initData: []
+      initData: [],
+      // 样式
+      style: {
+        // width 和 margin-right 需同时设置
+        width: '400px',
+        'margin-right': '-400px'
+      }
     },
     // 编辑器功能：脚部组件
     footer: {

@@ -43,7 +43,7 @@
           width: 20px;
           height: 20px;
           line-height: 20px;
-          padding: 5px;
+          /*padding: 5px;*/
           display: inline-block;
           color: #333333;
 
@@ -73,7 +73,7 @@
         @mousedown.stop.prevent
         @click.stop.prevent="triggerBarItem(item)"
       >
-        <i :class="['iconfont', item.icon]" :title="item.text"></i>
+        <XPEIcon :type="item.icon" :title="item.text"></XPEIcon>
       </div>
     </div>
   </div>
@@ -105,7 +105,7 @@ export default {
         {
           name: 'expand',
           text: '展开',
-          icon: 'icon-expand',
+          icon: 'expand',
           category: 'expand',
           enable: true,
           action: {
@@ -117,7 +117,7 @@ export default {
         {
           name: 'fold',
           text: '折叠',
-          icon: 'icon-fold',
+          icon: 'fold',
           category: 'expand',
           enable: true,
           action: {
@@ -129,7 +129,7 @@ export default {
         {
           name: 'zoom-in',
           text: '放大',
-          icon: 'icon-zoom-in',
+          icon: 'zoom-in',
           category: 'zoom',
           enable: true,
           action: {
@@ -140,7 +140,7 @@ export default {
         {
           name: 'zoom-out',
           text: '缩小',
-          icon: 'icon-zoom-out',
+          icon: 'zoom-out',
           category: 'zoom',
           enable: true,
           action: {
