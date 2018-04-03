@@ -1,6 +1,7 @@
 /**
 * Created by OXOYO on 2018/4/2.
 *
+* 图标组件
 */
 
 <style scoped lang="less" rel="stylesheet/less">
