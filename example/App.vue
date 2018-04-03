@@ -33,6 +33,7 @@
       <XPageEditor :config="pageEditorConfig">
         <!-- 自定义元素列表组件 -->
         <!--<CustomList slot="list"></CustomList>-->
+        <CustomListItem slot="listItem"></CustomListItem>
       </XPageEditor>
     </div>
   </div>
@@ -40,12 +41,14 @@
 
 <script>
 import CustomList from './components/CustomList.vue'
+import CustomListItem from './components/ListItem.vue'
 import Resources from './resources'
 
 export default {
   name: 'App',
   components: {
-    CustomList
+    CustomList,
+    CustomListItem
   },
   data () {
     return {
@@ -75,7 +78,11 @@ export default {
             // 该功能数据源
             data: Resources,
             // 初始化数据
-            initData: []
+            initData: [],
+            style: {
+              width: '200px',
+              'margin-left': '-200px'
+            }
           },
           // 编辑器画板
           board: {
@@ -105,7 +112,11 @@ export default {
             // 该功能数据源
             data: [],
             // 初始化数据
-            initData: []
+            initData: [],
+            style: {
+              width: '300px',
+              'margin-right': '-300px'
+            }
           },
           // 编辑器功能：脚部组件
           footer: {
