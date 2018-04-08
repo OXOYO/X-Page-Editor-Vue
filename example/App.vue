@@ -80,8 +80,8 @@ export default {
             // 初始化数据
             initData: [],
             style: {
-              width: '200px',
-              'margin-left': '-200px'
+              width: '300px',
+              'margin-left': '-300px'
             }
           },
           // 编辑器画板
