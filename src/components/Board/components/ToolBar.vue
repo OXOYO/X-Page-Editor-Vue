@@ -80,8 +80,8 @@
 </template>
 
 <script>
-import defConfig from '../../config'
-import utils from '../utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEToolBar',

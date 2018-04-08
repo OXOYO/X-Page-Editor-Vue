@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import utils from '../../utils'
+import utils from '@/global/utils'
 
 export default {
   name: 'ContextMenuItem',

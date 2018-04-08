@@ -20,7 +20,7 @@
       z-index: 2500;
       width: 100%;
       height: 18px;
-      background: url('../../assets/scale_x.png') repeat-x;
+      background: url('../../../assets/scale_x.png') repeat-x;
 
       .scale_item {
         top: 1px;
@@ -32,7 +32,7 @@
       z-index: 2500;
       width: 18px;
       height: 100%;
-      background: url('../../assets/scale_y.png') repeat-y;
+      background: url('../../../assets/scale_y.png') repeat-y;
 
       .scale_item {
         width: 8px;
@@ -141,8 +141,8 @@
 </template>
 
 <script>
-import defConfig from '../../config'
-import utils from '../utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEScale',

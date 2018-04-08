@@ -71,10 +71,10 @@
 </template>
 
 <script>
-import XPEHandler from '../global/components/Handler.vue'
+import XPEHandler from '@/global/components/Handler.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEFooter',

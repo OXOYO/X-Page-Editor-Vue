@@ -66,9 +66,9 @@
     @mouseup.stop.prevent="handleMouseUpOnBoard($event)"
   >
     <div class="block_body">
-      <h1>TODO Board</h1>
       <!-- TODO 画布组件，可以考虑参照PS -->
-      <div class="canvas" @mousemove.stop.prevent="handleMouseMoveOnCanvas($event)"></div>
+      <!--<div class="canvas" @mousemove.stop.prevent="handleMouseMoveOnCanvas($event)"></div>-->
+      <XPECanvas></XPECanvas>
     </div>
     <slot name="toolBar" v-if="config.toolBar.enable">
       <XPEToolBar :config="config.toolBar" :expand="isExpand"></XPEToolBar>
@@ -80,17 +80,19 @@
 </template>
 
 <script>
-import XPEToolBar from '../global/components/ToolBar.vue'
-import XPEScale from '../global/components/Scale.vue'
+import XPEToolBar from './components/ToolBar.vue'
+import XPEScale from './components/Scale.vue'
+import XPECanvas from './components/Canvas.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEBoard',
   components: {
     XPEToolBar,
-    XPEScale
+    XPEScale,
+    XPECanvas
   },
   props: {
     config: {
@@ -206,10 +208,20 @@ export default {
         // console.log('handleMouseMoveOnBoard type', _t.guides.type)
         // 依据移动距离判断是否可以开始画线
         if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
-          let currentPosition = {
-            x: event.offsetX,
-            y: event.offsetY
+          let xpeEl = document.querySelector('#xpe')
+          let currentPosition
+          if (xpeEl) {
+            currentPosition = {
+              x: event.clientX - xpeEl.offsetLeft,
+              y: event.clientY - xpeEl.offsetTop
+            }
+          } else {
+            currentPosition = {
+              x: event.offsetX,
+              y: event.offsetY
+            }
           }
+          // console.log('currentPosition', 'x:', currentPosition.x, 'y:', currentPosition.y, xpeEl.offsetTop)
           if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
             _t.guides.position['move'] = currentPosition
             utils.bus.$emit('XPE/scale/guides/move', _t.guides)

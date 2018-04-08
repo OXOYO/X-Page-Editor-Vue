@@ -126,7 +126,7 @@
 
 <script>
 import ContextMenuItem from './ContextMenuItem.vue'
-import utils from '../../utils'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEContextMenu',

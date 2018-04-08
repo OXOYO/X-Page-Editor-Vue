@@ -29,7 +29,7 @@
 </style>
 
 <template>
-  <div class="xpe" @contextmenu.stop.prevent @click.stop.prevent="handleMouseDown">
+  <div id="xpe" class="xpe" @contextmenu.stop.prevent @click.stop.prevent="handleMouseDown">
     <slot name="header" v-if="mergeConfig.UI.header.enable">
       <XPEHeader :config="mergeConfig.UI.header"></XPEHeader>
     </slot>
@@ -49,24 +49,21 @@
     </slot>
     <!-- 右键菜单 -->
     <XPEContextMenu></XPEContextMenu>
-    <!-- 新建项目弹窗 -->
-    <XPEAddProjectModal></XPEAddProjectModal>
   </div>
 </template>
 
 <script>
-import '../global/icon/iconfont.css'
+import '@/global/icon/iconfont.css'
 
-import XPEHeader from './Header.vue'
+import XPEHeader from './Header'
 import XPEList from './List.vue'
-import XPEBoard from './Board.vue'
+import XPEBoard from './Board'
 import XPEOptions from './Options.vue'
 import XPEFooter from './Footer.vue'
-import XPEContextMenu from '../global/components/ContextMenu/Index.vue'
-import XPEAddProjectModal from '../global/components/AddProjectModal.vue'
+import XPEContextMenu from '@/global/components/ContextMenu/Index.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPE',
@@ -76,8 +73,9 @@ export default {
     XPEBoard,
     XPEOptions,
     XPEFooter,
-    XPEContextMenu,
-    XPEAddProjectModal
+    XPEContextMenu
+    // ,
+    // XPEAddProjectModal
   },
   props: {
     config: {

@@ -24,6 +24,7 @@
       :model="formData"
       :rules="formRules"
       :label-width="120"
+      @keydown.native.enter.prevent
     >
       <XUIFormItem label="项目名称：" prop="projectName">
         <XUIInput type="text" v-model="formData.projectName" placeholder="请输入项目名" style="width: 300px;"></XUIInput>
@@ -37,8 +38,7 @@
 </template>
 
 <script>
-
-import utils from '../utils'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEAddProjectModal',
@@ -78,12 +78,19 @@ export default {
       _t.isShow = false
       let timeNow = new Date().getTime()
       let payload = {
-        id: timeNow,
-        name: _t.formatDate.projectName,
-        type: 'pc'
+        id: 'project-' + timeNow,
+        name: _t.formData.projectName,
+        type: 'pc',
+        components: []
       }
       // 广播事件
       utils.bus.$emit('XPE/project/add/ok', payload)
+      _t.$nextTick(function () {
+        // 清空表单
+        _t.formData = {
+          projectName: ''
+        }
+      })
     },
     handleCancel: function () {
       let _t = this

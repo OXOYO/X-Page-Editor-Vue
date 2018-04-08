@@ -61,14 +61,24 @@
       bottom: 0;
       z-index: 2500;
       background: #ffffff;
-      text-align: right;
+      /*text-align: right;*/
 
-      .btn-group {
+      .tab-group {
+        display: inline-block;
+        float: left;
         height: 30px;
         line-height: 30px;
-        margin-top: 15px;
-        display: inline-block;
+        margin-top: 18px;
+        max-width: 70%;
+      }
 
+      .btn-group {
+        display: inline-block;
+        float: right;
+        height: 30px;
+        line-height: 30px;
+        margin-top: 18px;
+        max-width: 30%;
         .btn-item {
           padding: 0 5px;
         }
@@ -85,7 +95,7 @@
     <div class="block_body">
       <!-- tab -->
       <div class="tab-group">
-        <div class="tab-item"></div>
+        <XPETabList></XPETabList>
       </div>
       <div class="btn-group">
         <!-- TODO 上传UI效果图，进行UI图与界面的比对 -->
@@ -119,19 +129,25 @@
       </div>
     </div>
     <XPEHandler class="handler" mode="horizontal" position="bottom" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
+    <!-- 新建项目弹窗 -->
+    <XPEAddProjectModal></XPEAddProjectModal>
   </div>
 </template>
 
 <script>
-import XPEHandler from '../global/components/Handler.vue'
+import XPEHandler from '@/global/components/Handler.vue'
+import XPEAddProjectModal from './components/AddProjectModal.vue'
+import XPETabList from './components/TabList.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEHeader',
   components: {
-    XPEHandler
+    XPEHandler,
+    XPEAddProjectModal,
+    XPETabList
   },
   props: {
     config: {
