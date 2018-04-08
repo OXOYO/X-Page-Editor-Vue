@@ -12,31 +12,42 @@
       width: 100% !important;
       text-align: left;
 
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+      outline: 0;
+      color: #495060;
+      font-size: 14px;
+      position: relative;
+
       &:after {
         display: none;
       }
-    }
 
-    &-group{
-      font-size: 16px;
-      margin: 8px 0;
-      padding-left: 15px;
-    }
-    .ivu-menu{
-      &-item{
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding-left: 34px;
-      }
-      span.navigate-group-span{
-        font-size: 12px;
-        color: #80848f;
-        padding-left: 2px;
-      }
-      &-item-selected{
-        span.navigate-group-span{
-          color: #2d8cf0;
+      .menu-group {
+
+        .menu-group-header {
+          height: 48px;
+          line-height: 48px;
+          font-size: 14px;
+          padding-left: 28px;
+          color: #999;
+        }
+        .menu-group-body {
+
+          .menu-item {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 14px 24px 14px 34px;
+            position: relative;
+            cursor: pointer;
+            transition: all .2s ease-in-out;
+
+            &:hover {
+              background: #f3f3f3;
+            }
+          }
         }
       }
     }
@@ -45,27 +56,29 @@
 
 <template>
   <div class="navigate">
-    <Menu class="menu-block">
-      <Menu-group v-for="item in navigate.components" :key="item.type" :title="item.type">
-        <!-- TODO 拖拽事件 -->
-        <Menu-item
-          v-for="component in item.list"
-          :key="component.path"
-          :name="component.path"
-          draggable="true"
-          @dragstart="handleDragStart"
-          @mousedown.stop.prevent="() => false"
-          @click.stop.prevent
-        >
-          <i class="ivu-icon" :class="'ivu-icon-' + component.icon"></i>
-          <template v-if="lang === 'zh-CN'">
-            {{ component.title.split(' ')[0] }}
-            <span class="navigate-group-span">{{ component.title.split(' ')[1] }}</span>
-          </template>
-          <template v-else>{{ component.title.split(' ')[0] }}</template>
-        </Menu-item>
-      </Menu-group>
-    </Menu>
+    <div class="menu-block">
+      <div
+        class="menu-group"
+        v-for="category in navigate.components"
+        :key="category.type"
+        :title="category.title"
+      >
+        <div class="menu-group-header">{{ category.title }}</div>
+        <div class="menu-group-body">
+          <div
+            class="menu-item"
+            v-for="component in category.children"
+            :key="component.name"
+            :name="component.name"
+            draggable="true"
+            @dragstart="handleDragStart(component, $event)"
+          >
+            <Icon type="component.icon"></Icon>
+            {{ component.title }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -81,8 +94,17 @@
       }
     },
     methods: {
-      handleDragStart: function () {
+      handleDragStart: function (component, event) {
+        let _t = this
         console.log('handleDragStart')
+        // 拖拽的节点数据
+        let nodeInfo = {
+          component: component,
+          // 唯一标识，防止在画布上拖拽时重复生成
+          nodeKey: 'node-' + ((new Date()).getTime())
+        }
+        event.dataTransfer.setData('node', JSON.stringify(nodeInfo))
+        console.log('handleDragStart nodeInfo', nodeInfo, _t.lang)
       }
     }
   }
