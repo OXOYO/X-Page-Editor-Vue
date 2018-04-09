@@ -1,7 +1,7 @@
 /**
 * Created by OXOYO on 2018/4/3.
 *
-* 新增项目弹窗
+* 新建项目弹窗
 */
 
 <style lang="less" rel="stylesheet/less">
@@ -14,7 +14,7 @@
   <XUIModal
     class="xpe_add-project-modal"
     :value="isShow"
-    title="新增项目"
+    title="新建项目"
     :transfer="false"
     @on-ok="handleOK"
     @on-cancel="handleCancel"

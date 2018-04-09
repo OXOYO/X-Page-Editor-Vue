@@ -11,7 +11,7 @@
     width: auto !important;
     z-index: 9999;
     background: #FFF;
-    box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0 0 2px 1px rgba(0, 0, 0, .1);
     padding: 5px 0;
 
     .context-menu-item {

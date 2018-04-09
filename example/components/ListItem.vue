@@ -96,12 +96,15 @@
     methods: {
       handleDragStart: function (component, event) {
         let _t = this
-        console.log('handleDragStart')
+        console.log('handleDragStart', component.name)
         // 拖拽的节点数据
         let nodeInfo = {
           component: component,
           // 唯一标识，防止在画布上拖拽时重复生成
-          nodeKey: 'node-' + ((new Date()).getTime())
+          id: 'node-' + ((new Date()).getTime()),
+          props: {},
+          slots: {},
+          innerHTML: ''
         }
         event.dataTransfer.setData('node', JSON.stringify(nodeInfo))
         console.log('handleDragStart nodeInfo', nodeInfo, _t.lang)
