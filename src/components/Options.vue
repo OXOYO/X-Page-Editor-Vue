@@ -50,16 +50,26 @@
       right: 0;
       left: 0;
       bottom: 0;
-      padding: 20px 0;
+      padding: 0;
       z-index: 2000;
       background: #ffffff;
       text-align: left;
       overflow-y: auto;
 
       .options-collapse {
-        border-left-color: transparent;
-        border-right-color: transparent;
+        border: none;
         border-radius: 0;
+        /*border-left-color: transparent;*/
+        /*border-right-color: transparent;*/
+      }
+
+      .loading {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 100%;
       }
     }
   }
@@ -68,9 +78,15 @@
 <template>
   <div :class="{'xpe_options': true, 'block_expand': isExpand}" :style="computedStyle">
     <div class="block_header">
-      <div class="title">Options</div>
+      <div class="title">
+        Options
+      </div>
     </div>
     <div class="block_body">
+      <!-- loading 动画 -->
+      <div class="loading" v-show="loading">
+        <XUISpin size="large" fix></XUISpin>
+      </div>
       <XUICollapse v-model="activePanel" class="options-collapse">
         <XUIPanel name="propsMap">
           props
@@ -117,83 +133,36 @@
           <div class="options-body" slot="content" v-if="Object.keys(nodeInfo).length">
             <XUIForm
               class="options-body"
-              :label-width="80"
               @keydown.native.enter.prevent
               @click.stop.prevent
             >
-              <XUIFormItem
-                class="options-item"
-                label="innerHTML"
-              >
+              <XUIFormItem class="options-item">
                 <XUIInput type="text" v-model="innerHTML"></XUIInput>
               </XUIFormItem>
             </XUIForm>
           </div>
         </XUIPanel>
-      </XUICollapse>
-      <!-- propsMap -->
-      <!--<div class="options-group" v-if="Object.keys(nodeInfo).length">
-        <div class="options-header">Props</div>
-        <div class="options-body">
-          <XUIForm
-            class="options-body"
-            ref="propsForm"
-            :model="propsMap"
-            :label-width="120"
-            inline
-            @keydown.native.enter.prevent
-            @click.stop.prevent
-          >
-            <XUIFormItem
-              class="options-item"
-              v-for="(val, key) in propsMap"
-              :key="key"
-              :label="key"
-              :prop="key"
+        <XUIPanel name="style">
+          style
+          <div class="options-body" slot="content" v-if="Object.keys(nodeInfo).length">
+            <XUIForm
+              class="options-body"
+              @click.stop.prevent
             >
-              <XUISwitch
-                v-if="typeof propsMap[key] === 'boolean'"
-                v-model="propsMap[key]"
-              >
-              </XUISwitch>
-              <XUIInput v-else type="text" v-model="propsMap[key]"></XUIInput>
-            </XUIFormItem>
-          </XUIForm>
-        </div>
-      </div>-->
-      <!-- slotsMap -->
-      <!--<div class="options-group" v-if="Object.keys(nodeInfo).length">
-        <div class="options-header">Slots</div>
-        <div class="options-body">
-          <div
-            class="options-item"
-            v-for="(val, key) in slotsMap"
-            :key="key"
-          >
-            {{ val }}
+              <XUIFormItem class="options-item">
+                <XUIInput
+                  v-model="style"
+                  type="textarea"
+                  :rows="4"
+                  :autosize="true"
+                  placeholder="请输入样式！"
+                >
+                </XUIInput>
+              </XUIFormItem>
+            </XUIForm>
           </div>
-        </div>
-      </div>-->
-      <!-- innerHTML -->
-      <!--<div class="options-group" v-if="Object.keys(nodeInfo).length">
-        <div class="options-header">innerHTML</div>
-        <div class="options-body">
-          <XUIForm
-            class="options-body"
-            :label-width="120"
-            inline
-            @keydown.native.enter.prevent
-            @click.stop.prevent
-          >
-            <XUIFormItem
-              class="options-item"
-              label="innerHTML"
-            >
-              <XUIInput type="text" v-model="innerHTML"></XUIInput>
-            </XUIFormItem>
-          </XUIForm>
-        </div>
-      </div>-->
+        </XUIPanel>
+      </XUICollapse>
     </div>
     <XPEHandler class="handler" mode="vertical" position="left" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
   </div>
@@ -228,8 +197,10 @@ export default {
       propsMap: {},
       slotsMap: {},
       innerHTML: '',
+      style: '',
       // 当前展开的面板
-      activePanel: ['propsMap', 'slotsMap', 'innerHTML']
+      activePanel: ['propsMap', 'slotsMap', 'innerHTML', 'style'],
+      loading: false
     }
   },
   computed: {
@@ -245,13 +216,17 @@ export default {
     propsMap: {
       handler: function (val, oldVal) {
         let _t = this
-        // 只在值变化时进行处理
-        if (Object.keys(oldVal).length && Object.keys(val).length) {
-          // 广播事件，更新组件props
-          utils.bus.$emit('XPE/project/component/props/set', {
-            ..._t.nodeInfo,
-            props: val
-          })
+        try {
+          // 只在值变化时进行处理
+          if (Object.keys(oldVal).length && Object.keys(val).length) {
+            // 广播事件，更新组件props
+            utils.bus.$emit('XPE/project/component/options/set', {
+              ..._t.nodeInfo,
+              props: val
+            })
+          }
+        } catch (err) {
+          console.log('err', err.message)
         }
       },
       deep: true
@@ -259,13 +234,17 @@ export default {
     slotsMap: {
       handler: function (val, oldVal) {
         let _t = this
-        // 只在值变化时进行处理
-        if (Object.keys(oldVal).length && Object.keys(val).length) {
-          // 广播事件，更新组件props
-          utils.bus.$emit('XPE/project/component/props/set', {
-            ..._t.nodeInfo,
-            slots: val
-          })
+        try {
+          // 只在值变化时进行处理
+          if (Object.keys(oldVal).length && Object.keys(val).length) {
+            // 广播事件，更新组件props
+            utils.bus.$emit('XPE/project/component/options/set', {
+              ..._t.nodeInfo,
+              slots: val
+            })
+          }
+        } catch (err) {
+          console.log('err', err.message)
         }
       },
       deep: true
@@ -273,11 +252,41 @@ export default {
     innerHTML: {
       handler: function (val) {
         let _t = this
-        // 广播事件，更新组件props
-        utils.bus.$emit('XPE/project/component/props/set', {
-          ..._t.nodeInfo,
-          innerHTML: val
-        })
+        try {
+          // 广播事件，更新组件props
+          utils.bus.$emit('XPE/project/component/options/set', {
+            ..._t.nodeInfo,
+            innerHTML: val
+          })
+        } catch (err) {
+          console.log('err', err.message)
+        }
+      },
+      deep: true
+    },
+    style: {
+      handler: function (val) {
+        let _t = this
+        try {
+          let tmpArr = val.split('\n')
+          let style = {}
+          tmpArr.map(str => {
+            // if (str && str.includes(':')) {
+            if (str) {
+              let arr = str.split(':')
+              let key = arr[0].trim()
+              let val = arr[1].replace(';', '').trim()
+              style[key] = val
+            }
+          })
+          // 广播事件，更新组件props
+          utils.bus.$emit('XPE/project/component/options/set', {
+            ..._t.nodeInfo,
+            style: style
+          })
+        } catch (err) {
+          console.log('err', err.message)
+        }
       },
       deep: true
     }
@@ -309,11 +318,35 @@ export default {
       // 实例化
       let instance = new constructor()
       // 获取props、slots
-      let propsMap = instance.$props
-      let slotsMap = instance.$slots
-      _t.propsMap = propsMap
-      _t.slotsMap = slotsMap
+      _t.propsMap = {
+        ...instance.$props,
+        ...nodeInfo.props
+      }
+      _t.slotsMap = {
+        ...instance.$slots,
+        ...nodeInfo.slots
+      }
+      _t.innerHTML = nodeInfo.innerHTML || instance.innerHTML
+      let style = {
+        ...instance.style,
+        ...nodeInfo.style
+      }
+      let tmpArr = []
+      Object.keys(style).map(key => {
+        let val = style[key]
+        let str = key + ':' + val + ';'
+        tmpArr.push(str)
+      })
+      _t.style = tmpArr.join('\n')
+    },
+    // 清空opstions
+    clearOptions: function () {
+      let _t = this
+      _t.nodeInfo = {}
+      _t.propsMap = {}
+      _t.slotsMap = {}
       _t.innerHTML = ''
+      _t.style = ''
     }
   },
   created: function () {
@@ -323,8 +356,15 @@ export default {
       _t.toggleHandler(val)
     })
     utils.bus.$on('XPE/project/component/trigger', function (nodeInfo) {
-      // 动态解析组件 props、slot 等
-      _t.compileComponent(nodeInfo)
+      _t.loading = true
+      setTimeout(function () {
+        // 动态解析组件 props、slot 等
+        _t.compileComponent(nodeInfo)
+        _t.loading = false
+      }, 1000)
+    })
+    utils.bus.$on('XPE/canvas/clear', function (projectID) {
+      _t.clearOptions(projectID)
     })
   }
 }

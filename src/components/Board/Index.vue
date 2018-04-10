@@ -157,7 +157,8 @@ export default {
             name: 'expand',
             icon: {
               type: 'icon-expand',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '展开',
             enable: _t.isExpand,
@@ -171,7 +172,8 @@ export default {
             name: 'fold',
             icon: {
               type: 'icon-fold',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '折叠',
             enable: !_t.isExpand,
@@ -185,7 +187,8 @@ export default {
             name: 'clear',
             icon: {
               type: '',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '清空',
             enable: true,

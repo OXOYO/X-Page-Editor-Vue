@@ -14,7 +14,7 @@
     bottom: 0;
     left: 0;
 
-    .canvas_item {
+    .canvas-box {
       display: inline-block;
       position: absolute;
       left: 50%;
@@ -38,9 +38,10 @@
       }
 
       .component-node {
+        pointer-events: auto;
 
         &:hover {
-          background: red;
+          box-shadow: inset 0px 0px 0px 1px red !important;
         }
       }
     }
@@ -48,16 +49,19 @@
 </style>
 
 <template>
-  <div class="xpe_canvas">
+  <div
+    class="xpe_canvas"
+    @mousemove.stop
+  >
     <div
       v-for="item in canvasMap"
       v-if="currentActive === item.id"
-      :class="[ 'canvas_item', currentActive === item.id ? 'active' : '', item.type === 'pc' ? 'pc' : item.type === 'mobile' ? 'mobile' : '' ]"
+      :class="[ 'canvas-box', currentActive === item.id ? 'active' : '', item.type === 'pc' ? 'pc' : item.type === 'mobile' ? 'mobile' : '' ]"
       :key="item.id"
       :project-id="item.id"
       :name="item.name"
       :title="item.name"
-      @contextmenu.stop.prevent="handlerRightClick($event)"
+      @contextmenu.stop.prevent="handlerRightClickOnCanvas($event)"
       @drop.stop.prevent="handleDrop(item, $event)"
       @dragover.stop.prevent
     >
@@ -66,6 +70,7 @@
       <template
         v-for="(node, index) in item.components"
       >
+        <!-- FIXME 【!!!】 node上的右键菜单事件绑定失败 -->
         <component
           class="component-node"
           :is="node.component.name"
@@ -73,7 +78,10 @@
           :node-id="node.id"
           v-bind="node.props"
           :style="node.style"
-          @click="handleComponentTrigger(node)"
+          @contextmenu.native.stop.prevent="handlerRightClickOnNode(node, $event)"
+          @click.stop.prevent="handleComponentTrigger(node)"
+          draggable="true"
+          @dragstart.native="handleDragStart(node, $event)"
         >
           {{ node.innerHTML}}
         </component>
@@ -83,10 +91,14 @@
 </template>
 
 <script>
+import XPEButton from '@/ui/Button.vue'
 import utils from '@/global/utils'
 
 export default {
   name: 'XPECanvas',
+  components: {
+    XPEButton
+  },
   data () {
     return {
       // 画布列表
@@ -98,10 +110,9 @@ export default {
     }
   },
   methods: {
-    // 桌面右键点击
-    handlerRightClick: function (event) {
+    // 画布右键点击
+    handlerRightClickOnCanvas: function (event) {
       let _t = this
-      console.log(event)
       let xpeEl = document.querySelector('#xpe')
       let xVal
       let yVal
@@ -117,13 +128,14 @@ export default {
         isShow: true,
         x: xVal,
         y: yVal,
-        target: 'XPE_board',
+        target: 'XPE_canvas',
         list: [
           {
             name: 'expand',
             icon: {
               type: 'icon-expand',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '展开',
             enable: _t.isExpand,
@@ -137,7 +149,8 @@ export default {
             name: 'fold',
             icon: {
               type: 'icon-fold',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '折叠',
             enable: !_t.isExpand,
@@ -151,7 +164,8 @@ export default {
             name: 'clear',
             icon: {
               type: '',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '清空画布',
             enable: true,
@@ -159,6 +173,91 @@ export default {
               type: 'bus',
               handler: 'XPE/canvas/clear',
               params: _t.currentActive
+            }
+          }
+        ]
+      }
+      // 广播事件
+      utils.bus.$emit('XPE/contextMenu/show', contextMenuInfo)
+    },
+    // 元素上右键
+    handlerRightClickOnNode: function (nodeInfo, event) {
+      let _t = this
+      let xpeEl = document.querySelector('#xpe')
+      let xVal
+      let yVal
+      if (xpeEl) {
+        xVal = event.clientX - xpeEl.offsetLeft
+        yVal = event.clientY - xpeEl.offsetTop
+      } else {
+        xVal = event.offsetX
+        yVal = event.offsetY
+      }
+      // 菜单信息
+      let contextMenuInfo = {
+        isShow: true,
+        x: xVal,
+        y: yVal,
+        target: 'XPE_canvas_node',
+        list: [
+          {
+            name: 'expand',
+            icon: {
+              type: 'icon-expand',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '展开',
+            enable: _t.isExpand,
+            action: {
+              type: 'bus',
+              handler: 'XPE/expand/toggle/all',
+              params: false
+            }
+          },
+          {
+            name: 'fold',
+            icon: {
+              type: 'icon-fold',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '折叠',
+            enable: !_t.isExpand,
+            action: {
+              type: 'bus',
+              handler: 'XPE/expand/toggle/all',
+              params: true
+            }
+          },
+          {
+            name: 'clear',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '清空画布',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/canvas/clear',
+              params: _t.currentActive
+            }
+          },
+          {
+            name: 'edit',
+            icon: {
+              type: 'edit',
+              style: '',
+              category: 'iview'
+            },
+            text: '编辑',
+            enable: true,
+            action: {
+              type: 'callback',
+              handler: _t.handleComponentTrigger,
+              params: nodeInfo
             }
           }
         ]
@@ -176,6 +275,7 @@ export default {
     handleDrop: function (item, event) {
       let _t = this
       console.log('handleDrop')
+      let canvasMap = _t.canvasMap
       // 获取节点数据
       let nodeInfo = JSON.parse(event.dataTransfer.getData('node'))
       let offsetX = event.offsetX
@@ -185,26 +285,54 @@ export default {
         left: offsetX + 'px',
         top: offsetY + 'px'
       }
-      nodeInfo.style = style
+      console.log('style', style)
+      nodeInfo.style = {
+        ...nodeInfo.style,
+        ...style
+      }
       // 更新当前画布下的组件数据
-      _t.canvasMap[item.id]['components'].push(nodeInfo)
+      if (canvasMap[item.id]['components'].length) {
+        // 判断该节点是否已存在
+        let nodeIndex = canvasMap[item.id]['components'].findIndex(node => node.id === nodeInfo.id)
+        if (nodeIndex > -1) {
+          canvasMap[item.id]['components'][nodeIndex] = nodeInfo
+        } else {
+          canvasMap[item.id]['components'].push(nodeInfo)
+        }
+      } else {
+        canvasMap[item.id]['components'].push(nodeInfo)
+      }
+      _t.canvasMap = {
+        ...canvasMap
+      }
       // 广播事件，更新当前激活组件
       utils.bus.$emit('XPE/project/component/trigger', nodeInfo)
       // TODO 完善组件上右键菜单
     },
-    // 处理props更新
-    handlePropsSet: function (nodeInfo) {
+    // 节点拖拽
+    handleDragStart: function (nodeInfo, event) {
+      console.log('handleDragStart nodeInfo', nodeInfo.component.name)
+      // 拖拽的节点数据
+      event.dataTransfer.setData('node', JSON.stringify(nodeInfo))
+    },
+    // 处理options更新
+    handleOptionsSet: function (nodeInfo) {
       let _t = this
-      _t.canvasMap[_t.currentActive]['components'].map(node => {
+      let canvasMap = _t.canvasMap
+      canvasMap[_t.currentActive]['components'].map(node => {
         if (node.id === nodeInfo.id) {
           console.log('node.id', node.id)
           node.props = nodeInfo.props
           node.slots = nodeInfo.slots
           node.innerHTML = nodeInfo.innerHTML
+          node.style = nodeInfo.style
         }
         return node
       })
-      console.log('handlePropsSet')
+      _t.canvasMap = {
+        ...canvasMap
+      }
+      console.log('handleOptionsSet')
     },
     // 清空画布
     clearCanvas: function (projectID) {
@@ -232,8 +360,8 @@ export default {
       // 删除当前操作对象数据
       delete _t.canvasMap[projectID]
     })
-    utils.bus.$on('XPE/project/component/props/set', function (nodeInfo) {
-      _t.handlePropsSet(nodeInfo)
+    utils.bus.$on('XPE/project/component/options/set', function (nodeInfo) {
+      _t.handleOptionsSet(nodeInfo)
     })
     utils.bus.$on('XPE/canvas/clear', function (projectID) {
       _t.clearCanvas(projectID)
