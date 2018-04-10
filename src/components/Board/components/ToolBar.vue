@@ -196,7 +196,10 @@ export default {
     init: function () {
       let _t = this
       // 计算样式
-      _t.style = _t.defStyle[_t.config.position]
+      _t.style = {
+        ..._t.defStyle[_t.config.position],
+        ..._t.config.style
+      }
       // 处理barList
       _t.handleBarList(_t.expand)
     },
