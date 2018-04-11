@@ -4,7 +4,7 @@
 * 画布组件
 */
 
-<style scoped lang="less" rel="stylesheet/less">
+<style  lang="less" rel="stylesheet/less">
   .xpe_canvas {
     display: inline-block;
     position: absolute;
@@ -37,12 +37,16 @@
         margin-left: -180px;
       }
 
-      .component-node {
-        pointer-events: auto;
+      .component-node {}
 
-        &:hover {
-          box-shadow: inset 0px 0px 0px 1px red !important;
-        }
+      .selection {
+        display: none;
+        position: absolute;
+        border: 1px solid transparent;
+        border-image: url("../../../assets/selection.gif");
+        border-image-slice: 1;
+        border-image-width: 1px;
+        border-image-repeat: round;
       }
     }
   }
@@ -55,8 +59,8 @@
   >
     <div
       v-for="item in canvasMap"
-      v-if="currentActive === item.id"
-      :class="[ 'canvas-box', currentActive === item.id ? 'active' : '', item.type === 'pc' ? 'pc' : item.type === 'mobile' ? 'mobile' : '' ]"
+      v-show="currentProject === item.id"
+      :class="[ 'canvas-box', currentProject === item.id ? 'active' : '', item.type === 'pc' ? 'pc' : item.type === 'mobile' ? 'mobile' : '' ]"
       :key="item.id"
       :project-id="item.id"
       :name="item.name"
@@ -67,10 +71,17 @@
     >
       <h1> {{ item.name }}</h1>
       <h1> {{ item.id }}</h1>
+      <!-- 选中虚线框效果 -->
+      <div
+        v-for="(selectionStyle, key) in selectionStyleMap"
+        :key="'selection-' + key"
+        :selection-id="'selection-' + key"
+        class="selection"
+        :style="selectionStyle"
+      ></div>
       <template
         v-for="(node, index) in item.components"
       >
-        <!-- FIXME 【!!!】 node上的右键菜单事件绑定失败 -->
         <component
           class="component-node"
           :is="node.component.name"
@@ -82,6 +93,8 @@
           @click.stop.prevent="handleComponentTrigger(node)"
           draggable="true"
           @dragstart.native="handleDragStart(node, $event)"
+          @mouseover.native.stop.prevent="handleMouseOverOnNode(node)"
+          @mouseout.native.stop.prevent="handleMouseOutOnNode(node)"
         >
           {{ node.innerHTML}}
         </component>
@@ -104,9 +117,11 @@ export default {
       // 画布列表
       canvasMap: {},
       // 当前激活对象
-      currentActive: '',
-      // 当前操作对象
-      currentTarget: ''
+      currentProject: '',
+      // 当前操作元素
+      currentNode: '',
+      // 选中效果样式
+      selectionStyleMap: {}
     }
   },
   methods: {
@@ -172,7 +187,7 @@ export default {
             action: {
               type: 'bus',
               handler: 'XPE/canvas/clear',
-              params: _t.currentActive
+              params: _t.currentProject
             }
           }
         ]
@@ -242,7 +257,7 @@ export default {
             action: {
               type: 'bus',
               handler: 'XPE/canvas/clear',
-              params: _t.currentActive
+              params: _t.currentProject
             }
           },
           {
@@ -267,9 +282,16 @@ export default {
     },
     // 处理组件点击
     handleComponentTrigger: function (nodeInfo) {
+      let _t = this
+      // 更新当前操作的节点
+      _t.currentNode = nodeInfo.id
       console.log('handleComponentTrigger', nodeInfo.component.name)
       // 广播事件，更新当前激活组件
       utils.bus.$emit('XPE/project/component/trigger', nodeInfo)
+      _t.$nextTick(function () {
+        _t.handleMouseOverOnNode(nodeInfo)
+        _t.handleMouseOutOnNode()
+      })
     },
     // 元素drop
     handleDrop: function (item, event) {
@@ -282,6 +304,7 @@ export default {
       let offsetY = event.offsetY
       let style = {
         position: 'absolute',
+        'pointer-events': 'auto',
         left: offsetX + 'px',
         top: offsetY + 'px'
       }
@@ -305,9 +328,14 @@ export default {
       _t.canvasMap = {
         ...canvasMap
       }
+      // 更新当前操作的节点
+      _t.currentNode = nodeInfo.id
       // 广播事件，更新当前激活组件
       utils.bus.$emit('XPE/project/component/trigger', nodeInfo)
-      // TODO 完善组件上右键菜单
+      _t.$nextTick(function () {
+        _t.handleMouseOverOnNode(nodeInfo)
+        _t.handleMouseOutOnNode()
+      })
     },
     // 节点拖拽
     handleDragStart: function (nodeInfo, event) {
@@ -319,7 +347,7 @@ export default {
     handleOptionsSet: function (nodeInfo) {
       let _t = this
       let canvasMap = _t.canvasMap
-      canvasMap[_t.currentActive]['components'].map(node => {
+      canvasMap[_t.currentProject]['components'].map(node => {
         if (node.id === nodeInfo.id) {
           console.log('node.id', node.id)
           node.props = nodeInfo.props
@@ -333,11 +361,53 @@ export default {
         ...canvasMap
       }
       console.log('handleOptionsSet')
+      _t.$nextTick(function () {
+        _t.handleMouseOverOnNode(nodeInfo)
+      })
     },
     // 清空画布
     clearCanvas: function (projectID) {
       let _t = this
       _t.canvasMap[projectID]['components'] = []
+      // FIXME 【!!!!!】 selectionStyleMap 也应该放在项目下
+      _t.selectionStyleMap = []
+    },
+    handleMouseOverOnNode: function (nodeInfo) {
+      let _t = this
+      console.log('handleMouseOverOnNode')
+      let target = document.querySelector('[node-id=' + nodeInfo.id + ']')
+      if (target) {
+        let width = target.offsetWidth + 2
+        let height = target.offsetHeight + 2
+        console.log('width', width, 'height', height)
+        let style = {
+          display: 'inline-block',
+          width: width + 'px',
+          height: height + 'px',
+          margin: '-1px',
+          left: nodeInfo.style.left,
+          top: nodeInfo.style.top
+        }
+        _t.selectionStyleMap = {
+          ..._t.selectionStyleMap,
+          [nodeInfo.id]: style
+        }
+      }
+    },
+    handleMouseOutOnNode: function () {
+      let _t = this
+      console.log('handleMouseOutOnNode')
+      if (Object.keys(_t.selectionStyleMap).length) {
+        let selectionStyleMap = _t.selectionStyleMap
+        Object.keys(_t.selectionStyleMap).map(key => {
+          if (key !== _t.currentNode) {
+            delete selectionStyleMap[key]
+          }
+        })
+        _t.selectionStyleMap = {
+          ...selectionStyleMap
+        }
+      }
     }
   },
   created: function () {
@@ -350,11 +420,11 @@ export default {
         [projectInfo.id]: projectInfo
       }
       // 更新当前激活对象
-      _t.currentActive = projectInfo.id
+      _t.currentProject = projectInfo.id
     })
     utils.bus.$on('XPE/project/trigger', function (projectID) {
       // 更新当前激活对象
-      _t.currentActive = projectID
+      _t.currentProject = projectID
     })
     utils.bus.$on('XPE/project/remove', function (projectID) {
       // 删除当前操作对象数据

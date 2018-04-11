@@ -271,8 +271,7 @@ export default {
           let tmpArr = val.split('\n')
           let style = {}
           tmpArr.map(str => {
-            // if (str && str.includes(':')) {
-            if (str) {
+            if (str && str.includes(':')) {
               let arr = str.split(':')
               let key = arr[0].trim()
               let val = arr[1].replace(';', '').trim()
@@ -310,6 +309,8 @@ export default {
     // 动态解析组件
     compileComponent: function (nodeInfo) {
       let _t = this
+      // 更新loading状态
+      _t.loading = true
       _t.nodeInfo = nodeInfo
       // TODO 动态解析组件 props、slot 等
       console.log('compileComponent', nodeInfo)
@@ -338,6 +339,8 @@ export default {
         tmpArr.push(str)
       })
       _t.style = tmpArr.join('\n')
+      // 更新loading状态
+      _t.loading = false
     },
     // 清空opstions
     clearOptions: function () {
@@ -356,12 +359,8 @@ export default {
       _t.toggleHandler(val)
     })
     utils.bus.$on('XPE/project/component/trigger', function (nodeInfo) {
-      _t.loading = true
-      setTimeout(function () {
-        // 动态解析组件 props、slot 等
-        _t.compileComponent(nodeInfo)
-        _t.loading = false
-      }, 1000)
+      // 动态解析组件 props、slot 等
+      _t.compileComponent(nodeInfo)
     })
     utils.bus.$on('XPE/canvas/clear', function (projectID) {
       _t.clearOptions(projectID)
