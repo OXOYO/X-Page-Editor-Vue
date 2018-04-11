@@ -227,7 +227,7 @@ export default {
           // console.log('currentPosition', 'x:', currentPosition.x, 'y:', currentPosition.y, xpeEl.offsetTop)
           if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
             _t.guides.position['move'] = currentPosition
-            utils.bus.$emit('XPE/scale/guides/move', _t.guides)
+            utils.bus.$emit('XPE/scale/guides/drag/move', _t.guides)
           }
         }
       }
@@ -247,7 +247,7 @@ export default {
           }
           if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
             _t.guides.position['move'] = currentPosition
-            utils.bus.$emit('XPE/scale/guides/move', _t.guides)
+            utils.bus.$emit('XPE/scale/guides/drag/move', _t.guides)
           }
         }
       }
@@ -258,7 +258,7 @@ export default {
       _t.guides.status.start = false
       _t.guides.status.move = false
       _t.guides.status.end = true
-      utils.bus.$emit('XPE/scale/guides/stop', _t.guides)
+      utils.bus.$emit('XPE/scale/guides/drag/stop', _t.guides)
     }
   },
   created: function () {
@@ -267,10 +267,10 @@ export default {
     utils.bus.$on('XPE/expand/toggle/all', function (val) {
       _t.isExpand = val
     })
-    utils.bus.$on('XPE/scale/guides/add/start', function (info) {
+    utils.bus.$on('XPE/scale/guides/drag', function (info) {
       _t.guides = info
     })
-    utils.bus.$on('XPE/scale/guides/edit/start', function (info) {
+    utils.bus.$on('XPE/scale/guides/drag/start', function (info) {
       _t.guides = info
     })
   },

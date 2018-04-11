@@ -239,7 +239,7 @@ export default {
       // 生成key
       let key = ['guides', type, timeNow].join('_')
       // 广播事件
-      utils.bus.$emit('XPE/scale/guides/add/start', {
+      utils.bus.$emit('XPE/scale/guides/drag', {
         // 参考线key
         key: key,
         // 参考线类别
@@ -278,7 +278,7 @@ export default {
     // 处理参考线上mousedown事件
     handleMouseDownOnGuides: function (item, event) {
       // 广播事件
-      utils.bus.$emit('XPE/scale/guides/edit/start', {
+      utils.bus.$emit('XPE/scale/guides/drag/start', {
         // 参考线key
         key: item.key,
         // 参考线类别
@@ -352,10 +352,10 @@ export default {
   created: function () {
     let _t = this
     // 监听事件
-    utils.bus.$on('XPE/scale/guides/move', function (info) {
+    utils.bus.$on('XPE/scale/guides/drag/move', function (info) {
       _t.handleGuidesMove(info)
     })
-    utils.bus.$on('XPE/scale/guides/stop', function (info) {
+    utils.bus.$on('XPE/scale/guides/drag/stop', function (info) {
       if (!info.status.start && !info.status.move && info.status.end) {
         _t.guidesMap = JSON.parse(JSON.stringify(_t.guidesList))
       }

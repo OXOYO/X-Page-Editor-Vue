@@ -53,6 +53,7 @@
 </style>
 
 <template>
+  <!-- FIXME 【!!!】 .xpe_canvas div 上的 mousemove.stop 会导致无法拖拽 guides 考虑可以将 Board上的mousemove 事件绑定改完动态绑定 -->
   <div
     class="xpe_canvas"
     @mousemove.stop
@@ -73,7 +74,7 @@
       <h1> {{ item.id }}</h1>
       <!-- 选中虚线框效果 -->
       <div
-        v-for="(selectionStyle, key) in selectionStyleMap"
+        v-for="(selectionStyle, key) in item.selectionStyleMap"
         :key="'selection-' + key"
         :selection-id="'selection-' + key"
         class="selection"
@@ -119,9 +120,7 @@ export default {
       // 当前激活对象
       currentProject: '',
       // 当前操作元素
-      currentNode: '',
-      // 选中效果样式
-      selectionStyleMap: {}
+      currentNode: ''
     }
   },
   methods: {
@@ -300,6 +299,14 @@ export default {
       let canvasMap = _t.canvasMap
       // 获取节点数据
       let nodeInfo = JSON.parse(event.dataTransfer.getData('node'))
+      nodeInfo = {
+        id: '',
+        components: {},
+        props: {},
+        slots: {},
+        innerHTML: '',
+        ...nodeInfo
+      }
       let offsetX = event.offsetX
       let offsetY = event.offsetY
       let style = {
@@ -369,8 +376,7 @@ export default {
     clearCanvas: function (projectID) {
       let _t = this
       _t.canvasMap[projectID]['components'] = []
-      // FIXME 【!!!!!】 selectionStyleMap 也应该放在项目下
-      _t.selectionStyleMap = []
+      _t.canvasMap[projectID]['selectionStyleMap'] = {}
     },
     handleMouseOverOnNode: function (nodeInfo) {
       let _t = this
@@ -388,8 +394,8 @@ export default {
           left: nodeInfo.style.left,
           top: nodeInfo.style.top
         }
-        _t.selectionStyleMap = {
-          ..._t.selectionStyleMap,
+        _t.canvasMap[_t.currentProject]['selectionStyleMap'] = {
+          ..._t.canvasMap[_t.currentProject]['selectionStyleMap'],
           [nodeInfo.id]: style
         }
       }
@@ -397,14 +403,14 @@ export default {
     handleMouseOutOnNode: function () {
       let _t = this
       console.log('handleMouseOutOnNode')
-      if (Object.keys(_t.selectionStyleMap).length) {
-        let selectionStyleMap = _t.selectionStyleMap
-        Object.keys(_t.selectionStyleMap).map(key => {
+      if (Object.keys(_t.canvasMap[_t.currentProject]['selectionStyleMap']).length) {
+        let selectionStyleMap = _t.canvasMap[_t.currentProject]['selectionStyleMap']
+        Object.keys(selectionStyleMap).map(key => {
           if (key !== _t.currentNode) {
             delete selectionStyleMap[key]
           }
         })
-        _t.selectionStyleMap = {
+        _t.canvasMap[_t.currentProject]['selectionStyleMap'] = {
           ...selectionStyleMap
         }
       }
@@ -417,7 +423,14 @@ export default {
       console.log('canvasMap', projectInfo.name)
       _t.canvasMap = {
         ..._t.canvasMap,
-        [projectInfo.id]: projectInfo
+        [projectInfo.id]: {
+          id: '',
+          name: '',
+          type: 'pc',
+          components: [],
+          selectionStyleMap: {},
+          ...projectInfo
+        }
       }
       // 更新当前激活对象
       _t.currentProject = projectInfo.id

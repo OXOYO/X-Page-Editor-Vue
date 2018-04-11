@@ -99,9 +99,9 @@
         console.log('handleDragStart', component.name)
         // 拖拽的节点数据
         let nodeInfo = {
-          component: component,
           // 唯一标识，防止在画布上拖拽时重复生成
           id: 'node-' + ((new Date()).getTime()),
+          component: component,
           props: {},
           slots: {},
           innerHTML: ''

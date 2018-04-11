@@ -81,7 +81,8 @@ export default {
         id: 'project-' + timeNow,
         name: _t.formData.projectName,
         type: 'pc',
-        components: []
+        components: [],
+        selectionStyleMap: {}
       }
       // 广播事件
       utils.bus.$emit('XPE/project/add/ok', payload)
