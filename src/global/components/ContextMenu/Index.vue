@@ -51,17 +51,33 @@
         position: absolute;
         top: 50%;
         left: 10px;
-        margin-top: -8px;
+        height: 12px;
+        width: 12px;
+        margin-top: -6px;
+        font-size: 12px;
         transition: all .5s ease-in .1s;
+        display: inline-block;
+        speak: none;
+        font-style: normal;
+        font-weight: 400;
+        font-variant: normal;
+        text-transform: none;
+        text-rendering: auto;
+        line-height: 12px;
+        -webkit-font-smoothing: antialiased;
       }
       .context-menu-label {
         display: inline-block;
         position: relative;
         width: 100%;
+        text-align: left;
+        height: 22px;
+        line-height: 22px;
 
         .context-menu-label-text {
           display: inline-block;
           font-size: 14px;
+          text-align: left;
         }
         .context-menu-icon-child {
           display: inline-block;
