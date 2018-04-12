@@ -47,6 +47,12 @@
       cursor: default;
     }
 
+    .toolTip {
+      position: absolute;
+      display: none;
+      margin: 15px;
+    }
+
     .guides_x {
       position: absolute;
       top: 0;
@@ -54,6 +60,12 @@
       height: 1px;
       background: #4AFFFF;
       cursor: row-resize;
+
+      &:hover {
+        .toolTip {
+          display: inline-block;
+        }
+      }
 
       &:after {
         content: ' ';
@@ -75,6 +87,12 @@
       background: #4AFFFF;
       cursor: col-resize;
 
+      &:hover {
+        .toolTip {
+          display: inline-block;
+        }
+      }
+
       &:after {
         content: ' ';
         position: absolute;
@@ -93,7 +111,12 @@
 <template>
   <div class="xpe_scale">
     <!-- 刻度尺 -->
-    <div class="scale_x" :style="{ 'width': width + 'px' }" @mousedown.stop.prevent="handleMouseDownOnScale('x', $event)">
+    <div
+      class="scale_x"
+      :style="{ 'width': width + 'px' }"
+      @mousedown.stop.prevent="handleMouseDownOnScale('x', $event)"
+      @contextmenu.stop.prevent="handlerRightClick($event)"
+    >
       <div
         class="scale_item"
         v-for="(item, index) in scaleList.x"
@@ -104,7 +127,12 @@
         {{ item.text }}
       </div>
     </div>
-    <div class="scale_y" :style="{ 'height': height + 'px'}" @mousedown.stop.prevent="handleMouseDownOnScale('y', $event)">
+    <div
+      class="scale_y"
+      :style="{ 'height': height + 'px'}"
+      @mousedown.stop.prevent="handleMouseDownOnScale('y', $event)"
+      @contextmenu.stop.prevent="handlerRightClick($event)"
+    >
       <div
         class="scale_item"
         v-for="(item, index) in scaleList.y"
@@ -117,6 +145,7 @@
     <!-- 参考线 -->
     <div
       class="guides_x"
+      v-show="showGuides"
       v-for="item in guidesMap.x"
       :key="item.key"
       :guides_key="item.key"
@@ -125,9 +154,11 @@
       :type="item.type"
       @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
     >
+      <div class="toolTip" :style="item.toolTip.style">{{ item.toolTip.text }}</div>
     </div>
     <div
       class="guides_y"
+      v-show="showGuides"
       v-for="item in guidesMap.y"
       :key="item.key"
       :guides_key="item.key"
@@ -136,6 +167,7 @@
       :type="item.type"
       @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
     >
+      <div class="toolTip" :style="item.toolTip.style">{{ item.toolTip.text }}</div>
     </div>
   </div>
 </template>
@@ -169,11 +201,6 @@ export default {
         x: [],
         y: []
       },
-      // 参考线列表
-      guidesList: {
-        x: {},
-        y: {}
-      },
       // 参考线map
       guidesMap: {
         x: {},
@@ -185,7 +212,11 @@ export default {
         current: 0,
         max: 5,
         min: -5
-      }
+      },
+      // 显示参考线
+      showGuides: true,
+      // 显示toolTips
+      showToolTip: false
     }
   },
   watch: {
@@ -239,7 +270,7 @@ export default {
       // 生成key
       let key = ['guides', type, timeNow].join('_')
       // 广播事件
-      utils.bus.$emit('XPE/scale/guides/drag', {
+      utils.bus.$emit('XPE/scale/guides/drag/start', {
         // 参考线key
         key: key,
         // 参考线类别
@@ -320,6 +351,7 @@ export default {
       if (!info.status.start || !info.status.move) {
         return
       }
+      let guidesMap = _t.guidesMap
       // 开始画线
       let timeNow = new Date().getTime()
       // 1.处理key
@@ -328,25 +360,103 @@ export default {
       let topVal = info.position.move.y + 'px'
       // 判断当前key是否已存在
       if (info.type === 'x') {
-        _t.guidesList[info.type][info.key] = {
+        guidesMap[info.type][info.key] = {
           key: info.key,
           type: info.type,
           text: topVal,
           style: {
             top: topVal
+          },
+          toolTip: {
+            text: topVal,
+            style: {
+              display: 'inline-block',
+              left: leftVal
+            }
           }
         }
       } else if (info.type === 'y') {
-        _t.guidesList[info.type][info.key] = {
+        guidesMap[info.type][info.key] = {
           key: info.key,
           type: info.type,
           text: leftVal,
           style: {
             left: leftVal
+          },
+          toolTip: {
+            text: leftVal,
+            style: {
+              display: 'inline-block',
+              top: topVal
+            }
           }
         }
       }
-      _t.guidesMap = JSON.parse(JSON.stringify(_t.guidesList))
+      _t.guidesMap = {
+        ...guidesMap
+      }
+    },
+    // 桌面右键点击
+    handlerRightClick: function (event) {
+      let _t = this
+      let xVal = parseInt(event.offsetX)
+      let yVal = parseInt(event.offsetY)
+      // 菜单信息
+      let contextMenuInfo = {
+        isShow: true,
+        x: xVal,
+        y: yVal,
+        target: 'XPE_board',
+        list: [
+          {
+            name: 'showGuides',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: _t.showGuides ? '隐藏参考线' : '显示参考线',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toggle'
+            }
+          },
+          {
+            name: 'showToolTip',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: _t.showToolTip ? '隐藏参考线坐标' : '显示参考线坐标',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toolTip/toggle'
+            }
+          }
+        ]
+      }
+      // 广播事件
+      utils.bus.$emit('XPE/contextMenu/show', contextMenuInfo)
+    },
+    // 处理toolTip显示隐藏
+    toggleToolTip: function () {
+      let _t = this
+      // 遍历参考线，处理toolTip显示隐藏
+      let guidesMap = _t.guidesMap
+      Object.keys(guidesMap).map(type => {
+        Object.keys(guidesMap[type]).map(key => {
+          guidesMap[type][key]['toolTip']['style'] = {
+            ...guidesMap[type][key]['toolTip']['style'],
+            'display': _t.showToolTip ? 'inline-block' : 'none'
+          }
+        })
+      })
+      _t.guidesMap = {
+        ...guidesMap
+      }
     }
   },
   created: function () {
@@ -357,15 +467,24 @@ export default {
     })
     utils.bus.$on('XPE/scale/guides/drag/stop', function (info) {
       if (!info.status.start && !info.status.move && info.status.end) {
-        _t.guidesMap = JSON.parse(JSON.stringify(_t.guidesList))
+        // 处理toolTip显示隐藏
+        _t.toggleToolTip()
       }
     })
     utils.bus.$on('XPE/board/clear', function () {
       // 清空画板
-      _t.guidesMap = _t._t.guidesList = {
+      _t.guidesMap = {
         x: {},
         y: {}
       }
+    })
+    utils.bus.$on('XPE/scale/guides/toggle', function () {
+      _t.showGuides = !_t.showGuides
+    })
+    utils.bus.$on('XPE/scale/guides/toolTip/toggle', function () {
+      _t.showToolTip = !_t.showToolTip
+      // 处理toolTip显示隐藏
+      _t.toggleToolTip()
     })
   }
 }

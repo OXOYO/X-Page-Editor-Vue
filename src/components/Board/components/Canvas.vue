@@ -56,7 +56,6 @@
   <!-- FIXME 【!!!】 .xpe_canvas div 上的 mousemove.stop 会导致无法拖拽 guides 考虑可以将 Board上的mousemove 事件绑定改完动态绑定 -->
   <div
     class="xpe_canvas"
-    @mousemove.stop
   >
     <div
       v-for="item in canvasMap"
@@ -175,6 +174,34 @@ export default {
             }
           },
           {
+            name: 'showGuides',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '显示 / 隐藏参考线',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toggle'
+            }
+          },
+          {
+            name: 'showToolTip',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '显示 / 隐藏参考线坐标',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toolTip/toggle'
+            }
+          },
+          {
             name: 'clear',
             icon: {
               type: '',
@@ -257,6 +284,34 @@ export default {
               type: 'bus',
               handler: 'XPE/canvas/clear',
               params: _t.currentProject
+            }
+          },
+          {
+            name: 'showGuides',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '显示 / 隐藏参考线',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toggle'
+            }
+          },
+          {
+            name: 'showToolTip',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '显示 / 隐藏参考线坐标',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toolTip/toggle'
             }
           },
           {

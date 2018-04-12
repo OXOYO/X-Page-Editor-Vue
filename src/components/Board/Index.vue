@@ -59,15 +59,14 @@
 
 <template>
   <div
+    id="xpe_board"
     :class="{'xpe_board': true, 'draw-guides_x': guides.status.move && guides.type === 'x', 'draw-guides_y': guides.status.move && guides.type === 'y' }"
     @dblclick.stop.prevent="toggleExpand"
     @contextmenu.stop.prevent="handlerRightClick($event)"
-    @mousemove.stop.prevent="handleMouseMoveOnBoard($event)"
+    @mousemove="handleMouseMoveOnBoard($event)"
     @mouseup.stop.prevent="handleMouseUpOnBoard($event)"
   >
     <div class="block_body">
-      <!-- TODO 画布组件，可以考虑参照PS -->
-      <!--<div class="canvas" @mousemove.stop.prevent="handleMouseMoveOnCanvas($event)"></div>-->
       <XPECanvas></XPECanvas>
     </div>
     <slot name="toolBar" v-if="config.toolBar.enable">
@@ -184,6 +183,34 @@ export default {
             }
           },
           {
+            name: 'showGuides',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '显示 / 隐藏参考线',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toggle'
+            }
+          },
+          {
+            name: 'showToolTip',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '显示 / 隐藏参考线坐标',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toolTip/toggle'
+            }
+          },
+          {
             name: 'clear',
             icon: {
               type: '',
@@ -232,26 +259,6 @@ export default {
         }
       }
     },
-    handleMouseMoveOnCanvas: function (event) {
-      let _t = this
-      // 判断是否开始拖拽参考线
-      if (_t.guides.status.start) {
-        // 更新标识
-        _t.guides.status.move = true
-        // console.log('handleMouseMoveOnBoard type', _t.guides.type)
-        // 依据移动距离判断是否可以开始画线
-        if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
-          let currentPosition = {
-            x: event.offsetX + event.target.offsetLeft,
-            y: event.offsetY + event.target.offsetTop
-          }
-          if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
-            _t.guides.position['move'] = currentPosition
-            utils.bus.$emit('XPE/scale/guides/drag/move', _t.guides)
-          }
-        }
-      }
-    },
     handleMouseUpOnBoard: function (event) {
       let _t = this
       // 更新标识
@@ -266,9 +273,6 @@ export default {
     // 监听事件
     utils.bus.$on('XPE/expand/toggle/all', function (val) {
       _t.isExpand = val
-    })
-    utils.bus.$on('XPE/scale/guides/drag', function (info) {
-      _t.guides = info
     })
     utils.bus.$on('XPE/scale/guides/drag/start', function (info) {
       _t.guides = info
