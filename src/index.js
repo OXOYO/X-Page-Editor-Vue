@@ -2,7 +2,7 @@
  * Created by OXOYO on 2018/3/21.
  */
 
-import { Button, Icon, Form, FormItem, Modal, Input, RadioGroup, Radio, Switch, Collapse, Panel, Spin } from 'iview'
+import { Button, Icon, Form, FormItem, Modal, Input, InputNumber, RadioGroup, Radio, Switch, Collapse, Panel, Spin } from 'iview'
 import 'iview/dist/styles/iview.css'
 
 import XPageEditor from './components/Index.vue'
@@ -25,6 +25,7 @@ XPE.install = function (Vue) {
   Vue.component(prefix + 'FormItem', FormItem)
   Vue.component(prefix + 'Modal', Modal)
   Vue.component(prefix + 'Input', Input)
+  Vue.component(prefix + 'InputNumber', InputNumber)
   Vue.component(prefix + 'RadioGroup', RadioGroup)
   Vue.component(prefix + 'Radio', Radio)
   Vue.component(prefix + 'Switch', Switch)
