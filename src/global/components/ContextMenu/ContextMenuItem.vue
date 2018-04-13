@@ -57,18 +57,37 @@ export default {
     triggerMenuItem: function () {
       let _t = this
       console.log('triggerMenuItem', _t.info.text, _t.info.name)
+      let handler
       // 执行菜单相应操作
-      if (_t.info && _t.info.action && _t.info.action.type) {
+      if (_t.info && _t.info.action && _t.info.action.type && _t.info.action.handler) {
         switch (_t.info.action.type) {
           case 'bus':
-            console.log('_t.info.action.handler', _t.info.action.handler)
-            utils.bus.$emit(_t.info.action.handler, _t.info.action.params)
-            break
-          case 'callback':
-            if (_t.info.action.handler && typeof _t.info.action.handler === 'function') {
-              _t.info.action.handler(_t.info.action.params)
+            handler = function () {
+              utils.bus.$emit(_t.info.action.handler, _t.info.action.params)
             }
             break
+          case 'callback':
+            handler = function () {
+              if (_t.info.action.handler && typeof _t.info.action.handler === 'function') {
+                _t.info.action.handler(_t.info.action.params)
+              }
+            }
+            break
+        }
+        // 执行前置钩子函数
+        let beforeFlag = false
+        if (_t.info.action.beforeTrigger && typeof _t.info.action.beforeTrigger === 'function') {
+          beforeFlag = _t.info.action.beforeTrigger()
+        } else {
+          beforeFlag = true
+        }
+        // 执行处理函数
+        if (beforeFlag) {
+          handler()
+        }
+        // 执行后置钩子函数
+        if (_t.info.action.afterTrigger && typeof _t.info.action.afterTrigger === 'function') {
+          _t.info.action.afterTrigger()
         }
       }
       // 广播事件，关闭菜单
