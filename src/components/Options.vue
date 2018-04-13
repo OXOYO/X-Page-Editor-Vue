@@ -90,57 +90,63 @@
       <XUICollapse v-model="activePanel" class="options-collapse">
         <XUIPanel name="propsMap">
           props
-          <div class="options-body" slot="content" v-if="Object.keys(nodeInfo).length">
-            <XUIForm
-              class="options-body"
-              ref="propsForm"
-              :model="propsMap"
-              :label-width="80"
-              @keydown.native.enter.prevent
-              @click.stop.prevent
+          <XUIForm
+            class="options-body"
+            slot="content"
+            v-if="Object.keys(nodeInfo).length"
+            ref="propsForm"
+            :model="propsMap"
+            :label-width="80"
+            @keydown.native.enter.prevent
+            @click.stop.prevent
+          >
+            <XUIFormItem
+              class="options-item"
+              v-for="(val, key) in propsMap"
+              :key="key"
+              :label="key"
+              :prop="key"
             >
-              <XUIFormItem
-                class="options-item"
-                v-for="(val, key) in propsMap"
-                :key="key"
-                :label="key"
-                :prop="key"
+              <XUISwitch
+                v-if="typeof propsMap[key] === 'boolean'"
+                v-model="propsMap[key]"
               >
-                <XUISwitch
-                  v-if="typeof propsMap[key] === 'boolean'"
-                  v-model="propsMap[key]"
-                >
-                </XUISwitch>
-                <XUIInput v-else type="text" v-model="propsMap[key]"></XUIInput>
-              </XUIFormItem>
-            </XUIForm>
-          </div>
+              </XUISwitch>
+              <XUIInput v-else type="text" v-model="propsMap[key]"></XUIInput>
+            </XUIFormItem>
+          </XUIForm>
         </XUIPanel>
         <XUIPanel name="slotsMap">
           slots
-          <div class="options-body" slot="content" v-if="Object.keys(nodeInfo).length">
-            <div
+          <XUIForm
+            class="options-body"
+            slot="content"
+            v-if="Object.keys(nodeInfo).length"
+            @keydown.native.enter.prevent
+            @click.stop.prevent
+          >
+            <XUIFormItem
               class="options-item"
               v-for="(val, key) in slotsMap"
               :key="key"
             >
-              {{ val }}
-            </div>
-          </div>
+              <XUIInput type="text" v-model="slotsMap[key]"></XUIInput>
+            </XUIFormItem>
+          </XUIForm>
         </XUIPanel>
         <XUIPanel name="innerHTML">
           innerHTML
-          <div class="options-body" slot="content" v-if="Object.keys(nodeInfo).length">
-            <XUIForm
-              class="options-body"
-              @keydown.native.enter.prevent
-              @click.stop.prevent
-            >
-              <XUIFormItem class="options-item">
-                <XUIInput type="text" v-model="innerHTML"></XUIInput>
-              </XUIFormItem>
-            </XUIForm>
-          </div>
+          <XUIForm
+            class="options-body"
+            slot="content"
+            v-if="Object.keys(nodeInfo).length"
+            @keydown.native.enter.prevent
+            @click.stop.prevent
+          >
+            <XUIFormItem class="options-item">
+              <XUIInput type="text" v-model="innerHTML"></XUIInput>
+            </XUIFormItem>
+          </XUIForm>
         </XUIPanel>
         <XUIPanel name="style">
           style
@@ -318,6 +324,7 @@ export default {
       let constructor = Vue.component(nodeInfo.component.name)
       // 实例化
       let instance = new constructor()
+      console.log('instance', instance)
       // 获取props、slots
       _t.propsMap = {
         ...instance.$props,
