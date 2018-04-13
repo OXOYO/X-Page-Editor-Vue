@@ -29,7 +29,7 @@
 </style>
 
 <template>
-  <div id="xpe" class="xpe" @contextmenu.stop.prevent @click.stop.prevent="handleMouseDown">
+  <div id="xpe" class="xpe" @contextmenu.stop.prevent @mousedown.stop="handleMouseDown">
     <slot name="header" v-if="mergeConfig.UI.header.enable">
       <XPEHeader :config="mergeConfig.UI.header"></XPEHeader>
     </slot>

@@ -104,7 +104,7 @@
           class="btn-item"
           @contextmenu.stop.prevent
           @mousedown.stop.prevent
-          @click.stop.prevent.native="handleAction('addProject')"
+          @click.native.stop.prevent="handleAction('addProject')"
         >
           <XPEIcon type="add-circle" title="新建项目"></XPEIcon>
         </XUIButton>
@@ -113,7 +113,7 @@
           class="btn-item"
           @contextmenu.stop.prevent
           @mousedown.stop.prevent
-          @click.stop.prevent.native="handleAction('ui')"
+          @click.native.stop.prevent="handleAction('ui')"
         >
           <XPEIcon type="ui" title="UI"></XPEIcon>
         </XUIButton>
@@ -122,7 +122,7 @@
           class="btn-item"
           @contextmenu.stop.prevent
           @mousedown.stop.prevent
-          @click.stop.prevent.native="handleAction('preview')"
+          @click.native.stop.prevent="handleAction('preview')"
         >
           <XPEIcon type="preview" title="预览"></XPEIcon>
         </XUIButton>

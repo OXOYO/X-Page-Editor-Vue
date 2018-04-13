@@ -83,7 +83,7 @@
       @on-cancel="handleCancel"
     >
       <div class="content">
-        确认删除吗？
+        删除项目会清空该项目的所有数据，确认删除项目吗？
       </div>
       <div slot="footer">
         <Button type="text" size="large" @click="handleCancel">取消</Button>
@@ -117,7 +117,7 @@ export default {
       // 更新当前操作对象
       _t.currentTarget = item
     },
-    handleCurrentTarget: function () {
+    handleCloseCurrentTarget: function () {
       let _t = this
       // 更新当前操作对象
       let item = _t.currentTarget
@@ -149,7 +149,7 @@ export default {
     handleOK: function () {
       let _t = this
       // 关闭当前操作对象
-      _t.handleCurrentTarget()
+      _t.handleCloseCurrentTarget()
       // 关闭弹窗
       _t.isShow = false
     },
@@ -163,14 +163,14 @@ export default {
   },
   created: function () {
     let _t = this
-    // 广播事件
-    utils.bus.$on('XPE/project/add/ok', function (payload) {
+    // 监听事件
+    utils.bus.$on('XPE/project/add/ok', function (projectInfo) {
       _t.tabMap = {
         ..._t.tabMap,
-        [payload.id]: payload
+        [projectInfo.id]: projectInfo
       }
       // 更新激活tab
-      _t.currentActive = payload.id
+      _t.currentActive = projectInfo.id
     })
   }
 }

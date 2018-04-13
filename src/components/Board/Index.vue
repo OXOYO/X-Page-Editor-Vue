@@ -62,7 +62,7 @@
     id="xpe_board"
     :class="{'xpe_board': true, 'draw-guides_x': guides.status.move && guides.type === 'x', 'draw-guides_y': guides.status.move && guides.type === 'y' }"
     @dblclick.stop.prevent="toggleExpand"
-    @contextmenu.stop.prevent="handlerRightClick($event)"
+    @contextmenu.stop.prevent="handleRightClick($event)"
     @mousemove="handleMouseMoveOnBoard($event)"
     @mouseup.stop.prevent="handleMouseUpOnBoard($event)"
   >
@@ -141,10 +141,18 @@ export default {
       utils.bus.$emit('XPE/expand/toggle/all', _t.isExpand)
     },
     // 桌面右键点击
-    handlerRightClick: function (event) {
+    handleRightClick: function (event) {
       let _t = this
-      let xVal = parseInt(event.offsetX)
-      let yVal = parseInt(event.offsetY)
+      let xpeEl = document.querySelector('#xpe')
+      let xVal
+      let yVal
+      if (xpeEl) {
+        xVal = event.clientX - xpeEl.offsetLeft
+        yVal = event.clientY - xpeEl.offsetTop
+      } else {
+        xVal = event.offsetX
+        yVal = event.offsetY
+      }
       // 菜单信息
       let contextMenuInfo = {
         isShow: true,
@@ -217,10 +225,11 @@ export default {
               style: '',
               category: 'iconfont'
             },
-            text: '清空',
-            enable: true,
+            text: '清空编辑器画板',
+            enable: false,
             action: {
               type: 'bus',
+              // FIXME 需添加confirm 回调操作
               handler: 'XPE/board/clear'
             }
           }

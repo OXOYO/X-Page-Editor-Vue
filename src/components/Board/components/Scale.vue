@@ -115,7 +115,7 @@
       class="scale_x"
       :style="{ 'width': width + 'px' }"
       @mousedown.stop.prevent="handleMouseDownOnScale('x', $event)"
-      @contextmenu.stop.prevent="handlerRightClick($event)"
+      @contextmenu.stop.prevent="handleRightClick($event)"
     >
       <div
         class="scale_item"
@@ -131,7 +131,7 @@
       class="scale_y"
       :style="{ 'height': height + 'px'}"
       @mousedown.stop.prevent="handleMouseDownOnScale('y', $event)"
-      @contextmenu.stop.prevent="handlerRightClick($event)"
+      @contextmenu.stop.prevent="handleRightClick($event)"
     >
       <div
         class="scale_item"
@@ -143,32 +143,39 @@
       </div>
     </div>
     <!-- 参考线 -->
-    <div
-      class="guides_x"
-      v-show="showGuides"
-      v-for="item in guidesMap.x"
-      :key="item.key"
-      :guides_key="item.key"
-      :style="[{ 'width': width + 'px' }, item.style ]"
-      :title="item.text"
-      :type="item.type"
-      @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
+    <template
+      v-if="Object.keys(guidesMap).length && currentProject"
+      v-for="(guidesMapByProject, projectID) in guidesMap"
     >
-      <div class="toolTip" :style="item.toolTip.style">{{ item.toolTip.text }}</div>
-    </div>
-    <div
-      class="guides_y"
-      v-show="showGuides"
-      v-for="item in guidesMap.y"
-      :key="item.key"
-      :guides_key="item.key"
-      :style="[{ 'height': height + 'px' }, item.style ]"
-      :title="item.text"
-      :type="item.type"
-      @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
-    >
-      <div class="toolTip" :style="item.toolTip.style">{{ item.toolTip.text }}</div>
-    </div>
+      <div
+        class="guides_x"
+        v-for="item in guidesMapByProject.x"
+        v-show="currentProject === projectID && guidesMapByProject.showGuides"
+        :key="item.key"
+        :guides_key="item.key"
+        :project_id="projectID"
+        :style="[{ 'width': width + 'px' }, item.style ]"
+        :title="item.text"
+        :type="item.type"
+        @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
+      >
+        <div class="toolTip" :style="item.toolTip.style">{{ item.toolTip.text }}</div>
+      </div>
+      <div
+        class="guides_y"
+        v-for="item in guidesMapByProject.y"
+        v-show="currentProject === projectID && guidesMapByProject.showGuides"
+        :key="item.key"
+        :guides_key="item.key"
+        :project_id="projectID"
+        :style="[{ 'height': height + 'px' }, item.style ]"
+        :title="item.text"
+        :type="item.type"
+        @mousedown.stop.prevent="handleMouseDownOnGuides(item, $event)"
+      >
+        <div class="toolTip" :style="item.toolTip.style">{{ item.toolTip.text }}</div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -201,22 +208,17 @@ export default {
         x: [],
         y: []
       },
-      // 参考线map
-      guidesMap: {
-        x: {},
-        y: {}
-      },
+      // 按项目划分的参考线map
+      guidesMap: {},
+      // 当前激活的项目
+      currentProject: '',
       // 缩放级别
       zoom: {
         // 当前缩放级别 0: 未缩放 1: 放大一级 -1: 缩小一级
         current: 0,
         max: 5,
         min: -5
-      },
-      // 显示参考线
-      showGuides: true,
-      // 显示toolTips
-      showToolTip: false
+      }
     }
   },
   watch: {
@@ -265,6 +267,12 @@ export default {
     },
     // 处理刻度尺上mousedown事件
     handleMouseDownOnScale: function (type, event) {
+      let _t = this
+      // TODO 判断是否有已创建的项目，有则继续，无则提示
+      if (!Object.keys(_t.guidesMap).length || !_t.currentProject) {
+        console.warn('Notice::请先创建项目！')
+        return
+      }
       // 开始画线
       let timeNow = new Date().getTime()
       // 生成key
@@ -351,7 +359,16 @@ export default {
       if (!info.status.start || !info.status.move) {
         return
       }
-      let guidesMap = _t.guidesMap
+      if (!Object.keys(_t.guidesMap).length || !_t.currentProject) {
+        console.warn('Notice::请先创建项目！')
+        return
+      }
+      // 移动时显示参考线
+      _t.guidesMap[_t.currentProject]['showGuides'] = true
+      let guidesMap = {
+        x: _t.guidesMap[_t.currentProject]['x'],
+        y: _t.guidesMap[_t.currentProject]['y']
+      }
       // 开始画线
       let timeNow = new Date().getTime()
       // 1.处理key
@@ -392,15 +409,28 @@ export default {
           }
         }
       }
-      _t.guidesMap = {
+      _t.guidesMap[_t.currentProject] = {
+        ..._t.guidesMap[_t.currentProject],
         ...guidesMap
       }
     },
     // 桌面右键点击
-    handlerRightClick: function (event) {
+    handleRightClick: function (event) {
       let _t = this
-      let xVal = parseInt(event.offsetX)
-      let yVal = parseInt(event.offsetY)
+      if (!Object.keys(_t.guidesMap).length || !_t.currentProject) {
+        console.warn('Notice::请先创建项目！')
+        return
+      }
+      let xpeEl = document.querySelector('#xpe')
+      let xVal
+      let yVal
+      if (xpeEl) {
+        xVal = event.clientX - xpeEl.offsetLeft
+        yVal = event.clientY - xpeEl.offsetTop
+      } else {
+        xVal = event.offsetX
+        yVal = event.offsetY
+      }
       // 菜单信息
       let contextMenuInfo = {
         isShow: true,
@@ -415,7 +445,7 @@ export default {
               style: '',
               category: 'iconfont'
             },
-            text: _t.showGuides ? '隐藏参考线' : '显示参考线',
+            text: _t.guidesMap[_t.currentProject]['showGuides'] ? '隐藏参考线' : '显示参考线',
             enable: true,
             action: {
               type: 'bus',
@@ -429,7 +459,7 @@ export default {
               style: '',
               category: 'iconfont'
             },
-            text: _t.showToolTip ? '隐藏参考线坐标' : '显示参考线坐标',
+            text: _t.guidesMap[_t.currentProject]['showToolTip'] ? '隐藏参考线坐标' : '显示参考线坐标',
             enable: true,
             action: {
               type: 'bus',
@@ -444,18 +474,38 @@ export default {
     // 处理toolTip显示隐藏
     toggleToolTip: function () {
       let _t = this
+      if (!Object.keys(_t.guidesMap).length || !_t.currentProject) {
+        console.warn('Notice::请先创建项目！')
+        return
+      }
       // 遍历参考线，处理toolTip显示隐藏
-      let guidesMap = _t.guidesMap
+      let guidesMap = {
+        x: _t.guidesMap[_t.currentProject]['x'],
+        y: _t.guidesMap[_t.currentProject]['y']
+      }
       Object.keys(guidesMap).map(type => {
         Object.keys(guidesMap[type]).map(key => {
           guidesMap[type][key]['toolTip']['style'] = {
             ...guidesMap[type][key]['toolTip']['style'],
-            'display': _t.showToolTip ? 'inline-block' : 'none'
+            'display': _t.guidesMap[_t.currentProject]['showToolTip'] ? 'inline-block' : 'none'
           }
         })
       })
-      _t.guidesMap = {
+      _t.guidesMap[_t.currentProject] = {
+        ..._t.guidesMap[_t.currentProject],
         ...guidesMap
+      }
+    },
+    clearGuidesByProject: function (projectID) {
+      let _t = this
+      // 清空当前项目的参考线
+      _t.guidesMap = {
+        ..._t.guidesMap,
+        [projectID]: {
+          ..._t.guidesMap[projectID],
+          x: {},
+          y: {}
+        }
       }
     }
   },
@@ -471,20 +521,58 @@ export default {
         _t.toggleToolTip()
       }
     })
+    // 清空编辑器画板
     utils.bus.$on('XPE/board/clear', function () {
-      // 清空画板
-      _t.guidesMap = {
-        x: {},
-        y: {}
-      }
+      // 清空所有参考线
+      _t.guidesMap = {}
+    })
+    // 清空当前项目画布
+    utils.bus.$on('XPE/canvas/clear', function (projectID) {
+      // 清空当前项目的参考线
+      _t.clearGuidesByProject(projectID)
+    })
+    // 清空当前项目的参考线
+    utils.bus.$on('XPE/scale/guides/clear', function (projectID) {
+      _t.clearGuidesByProject(projectID)
     })
     utils.bus.$on('XPE/scale/guides/toggle', function () {
-      _t.showGuides = !_t.showGuides
+      if (!Object.keys(_t.guidesMap).length || !_t.currentProject) {
+        console.warn('Notice::请先创建项目！')
+        return
+      }
+      _t.guidesMap[_t.currentProject]['showGuides'] = !_t.guidesMap[_t.currentProject]['showGuides']
     })
     utils.bus.$on('XPE/scale/guides/toolTip/toggle', function () {
-      _t.showToolTip = !_t.showToolTip
+      if (!Object.keys(_t.guidesMap).length || !_t.currentProject) {
+        console.warn('Notice::请先创建项目！')
+        return
+      }
+      _t.guidesMap[_t.currentProject]['showToolTip'] = !_t.guidesMap[_t.currentProject]['showToolTip']
       // 处理toolTip显示隐藏
       _t.toggleToolTip()
+    })
+    utils.bus.$on('XPE/project/add/ok', function (projectInfo) {
+      _t.guidesMap = {
+        ..._t.guidesMap,
+        [projectInfo.id]: {
+          x: {},
+          y: {},
+          // 显示参考线
+          showGuides: true,
+          // 显示toolTips
+          showToolTip: false
+        }
+      }
+      // 更新当前激活项目
+      _t.currentProject = projectInfo.id
+    })
+    utils.bus.$on('XPE/project/trigger', function (projectID) {
+      // 更新当前激活项目
+      _t.currentProject = projectID
+    })
+    utils.bus.$on('XPE/project/remove', function (projectID) {
+      // 删除当前操作对象数据
+      delete _t.guidesMap[projectID]
     })
   }
 }

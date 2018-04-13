@@ -134,7 +134,20 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XPE/board/zoom/in'
+            handler: 'XPE/board/zoom',
+            params: 'in'
+          }
+        },
+        {
+          name: 'zoom-reset',
+          text: '还原',
+          icon: 'zoom',
+          category: 'zoom',
+          enable: true,
+          action: {
+            type: 'bus',
+            handler: 'XPE/board/zoom',
+            params: 'reset'
           }
         },
         {
@@ -145,7 +158,8 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XPE/board/zoom/out'
+            handler: 'XPE/board/zoom',
+            params: 'out'
           }
         }
       ],

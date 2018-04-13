@@ -26,8 +26,29 @@
       :label-width="120"
       @keydown.native.enter.prevent
     >
-      <XUIFormItem label="项目名称：" prop="projectName">
-        <XUIInput type="text" v-model="formData.projectName" placeholder="请输入项目名" style="width: 300px;"></XUIInput>
+      <XUIFormItem label="项目名称：" prop="name">
+        <XUIInput type="text" v-model="formData.name" placeholder="请输入项目名" style="width: 300px;"></XUIInput>
+      </XUIFormItem>
+      <!-- 模式 -->
+      <XUIFormItem label="模式：" prop="type">
+        <XUIRadioGroup v-model="formData.type">
+          <XUIRadio
+            v-for="(item, key) in typeMap"
+            :label="key"
+            :key="key"
+          >
+            <XUIIcon :type="item.icon"></XUIIcon>
+            <span>{{ item.val }}</span>
+          </XUIRadio>
+        </XUIRadioGroup>
+      </XUIFormItem>
+      <XUIFormItem label="width：" prop="width">
+        <XUIInputNumber v-model="formData.width"></XUIInputNumber>
+        <span>px</span>
+      </XUIFormItem>
+      <XUIFormItem label="height：" prop="height">
+        <XUIInputNumber v-model="formData.height"></XUIInputNumber>
+        <span>px</span>
       </XUIFormItem>
     </XUIForm>
     <div slot="footer">
@@ -48,18 +69,59 @@ export default {
       isShow: false,
       // 表单数据
       formData: {
-        projectName: ''
+        name: '',
+        type: '',
+        width: 0,
+        height: 0
       },
       // 表单校验规则
       formRules: {
-        projectName: {
+        name: {
           required: true,
           trigger: 'change'
+        }
+      },
+      // 模式列表
+      typeMap: {
+        pc: {
+          key: 'pc',
+          val: 'pc',
+          icon: 'monitor',
+          width: 960,
+          height: 1000
+        },
+        mobile: {
+          key: 'mobile',
+          val: 'mobile',
+          icon: 'iphone',
+          width: 376,
+          height: 667
         }
       }
     }
   },
+  watch: {
+    'formData.type': function (val) {
+      let _t = this
+      let { width, height } = _t.typeMap[val]
+      _t.formData = {
+        ..._t.formData,
+        width,
+        height
+      }
+    }
+  },
   methods: {
+    init: function () {
+      let _t = this
+      // 初始化formData
+      _t.formData = {
+        name: '',
+        type: 'pc',
+        width: _t.typeMap['pc']['width'],
+        height: _t.typeMap['pc']['height']
+      }
+    },
     handleOK: function () {
       let _t = this
       // 校验结果
@@ -78,9 +140,10 @@ export default {
       _t.isShow = false
       let timeNow = new Date().getTime()
       let payload = {
+        ..._t.formData,
+        width: _t.formData.width + 'px',
+        height: _t.formData.height + 'px',
         id: 'project-' + timeNow,
-        name: _t.formData.projectName,
-        type: 'pc',
         components: [],
         selectionStyleMap: {}
       }
@@ -88,9 +151,7 @@ export default {
       utils.bus.$emit('XPE/project/add/ok', payload)
       _t.$nextTick(function () {
         // 清空表单
-        _t.formData = {
-          projectName: ''
-        }
+        _t.init()
       })
     },
     handleCancel: function () {
@@ -101,6 +162,8 @@ export default {
   },
   created: function () {
     let _t = this
+    // 初始化
+    _t.init()
     // 监听事件
     utils.bus.$on('XPE/project/add', function () {
       _t.isShow = true

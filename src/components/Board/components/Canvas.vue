@@ -53,7 +53,6 @@
 </style>
 
 <template>
-  <!-- FIXME 【!!!】 .xpe_canvas div 上的 mousemove.stop 会导致无法拖拽 guides 考虑可以将 Board上的mousemove 事件绑定改完动态绑定 -->
   <div
     class="xpe_canvas"
   >
@@ -61,11 +60,12 @@
       v-for="item in canvasMap"
       v-show="currentProject === item.id"
       :class="[ 'canvas-box', currentProject === item.id ? 'active' : '', item.type === 'pc' ? 'pc' : item.type === 'mobile' ? 'mobile' : '' ]"
+      :style="{ 'width': item.width, 'height': item.height, transform: 'scale(' + item.scale.current + ',' + item.scale.current + ')' }"
       :key="item.id"
       :project-id="item.id"
       :name="item.name"
       :title="item.name"
-      @contextmenu.stop.prevent="handlerRightClickOnCanvas($event)"
+      @contextmenu.stop.prevent="handleRightClickOnCanvas($event)"
       @drop.stop.prevent="handleDrop(item, $event)"
       @dragover.stop.prevent
     >
@@ -89,8 +89,8 @@
           :node-id="node.id"
           v-bind="node.props"
           :style="node.style"
-          @contextmenu.native.stop.prevent="handlerRightClickOnNode(node, $event)"
-          @click.stop.prevent="handleComponentTrigger(node)"
+          @contextmenu.native.stop.prevent="handleRightClickOnNode(node, $event)"
+          @click.native.stop.prevent="handleComponentTrigger(node)"
           draggable="true"
           @dragstart.native="handleDragStart(node, $event)"
           @mouseover.native.stop.prevent="handleMouseOverOnNode(node)"
@@ -114,17 +114,27 @@ export default {
   },
   data () {
     return {
+      // 是否展开
+      isExpand: true,
       // 画布列表
       canvasMap: {},
       // 当前激活对象
       currentProject: '',
       // 当前操作元素
-      currentNode: ''
+      currentNode: '',
+      // 缩放级别，默认1
+      scale: {
+        default: 1,
+        current: 1,
+        max: 10,
+        min: 0.1,
+        step: 0.01
+      }
     }
   },
   methods: {
     // 画布右键点击
-    handlerRightClickOnCanvas: function (event) {
+    handleRightClickOnCanvas: function (event) {
       let _t = this
       let xpeEl = document.querySelector('#xpe')
       let xVal
@@ -202,13 +212,28 @@ export default {
             }
           },
           {
+            name: 'clearGuides',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '清空当前项目参考线',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/clear',
+              params: _t.currentProject
+            }
+          },
+          {
             name: 'clear',
             icon: {
               type: '',
               style: '',
               category: 'iconfont'
             },
-            text: '清空画布',
+            text: '清空当前项目画布',
             enable: true,
             action: {
               type: 'bus',
@@ -222,7 +247,7 @@ export default {
       utils.bus.$emit('XPE/contextMenu/show', contextMenuInfo)
     },
     // 元素上右键
-    handlerRightClickOnNode: function (nodeInfo, event) {
+    handleRightClickOnNode: function (nodeInfo, event) {
       let _t = this
       let xpeEl = document.querySelector('#xpe')
       let xVal
@@ -272,21 +297,6 @@ export default {
             }
           },
           {
-            name: 'clear',
-            icon: {
-              type: '',
-              style: '',
-              category: 'iconfont'
-            },
-            text: '清空画布',
-            enable: true,
-            action: {
-              type: 'bus',
-              handler: 'XPE/canvas/clear',
-              params: _t.currentProject
-            }
-          },
-          {
             name: 'showGuides',
             icon: {
               type: '',
@@ -312,6 +322,36 @@ export default {
             action: {
               type: 'bus',
               handler: 'XPE/scale/guides/toolTip/toggle'
+            }
+          },
+          {
+            name: 'clearGuides',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '清空当前项目参考线',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/clear',
+              params: _t.currentProject
+            }
+          },
+          {
+            name: 'clear',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '清空当前项目画布',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/canvas/clear',
+              params: _t.currentProject
             }
           },
           {
@@ -432,6 +472,9 @@ export default {
       let _t = this
       _t.canvasMap[projectID]['components'] = []
       _t.canvasMap[projectID]['selectionStyleMap'] = {}
+      _t.canvasMap[projectID]['scale'] = {
+        ..._t.scale
+      }
     },
     handleMouseOverOnNode: function (nodeInfo) {
       let _t = this
@@ -469,10 +512,38 @@ export default {
           ...selectionStyleMap
         }
       }
+    },
+    handleZoom: function (type) {
+      let _t = this
+      let current
+      let projectInfo = _t.canvasMap[_t.currentProject]
+      switch (type) {
+        case 'in':
+          current = projectInfo.scale.current + projectInfo.scale.step
+          break
+        case 'out':
+          current = projectInfo.scale.current - projectInfo.scale.step
+          break
+        case 'reset':
+          current = projectInfo.scale.default
+          break
+      }
+      if (current > projectInfo.scale.max) {
+        current = projectInfo.scale.max
+      } else if (current < projectInfo.scale.min) {
+        current = projectInfo.scale.min
+      } else if (!current) {
+        current = projectInfo.scale.default
+      }
+      _t.canvasMap[_t.currentProject]['scale']['current'] = current
     }
   },
   created: function () {
     let _t = this
+    // 监听事件
+    utils.bus.$on('XPE/expand/toggle/all', function (val) {
+      _t.isExpand = val
+    })
     // 监听事件
     utils.bus.$on('XPE/project/add/ok', function (projectInfo) {
       console.log('canvasMap', projectInfo.name)
@@ -482,16 +553,21 @@ export default {
           id: '',
           name: '',
           type: 'pc',
+          width: 0,
+          height: 0,
           components: [],
           selectionStyleMap: {},
+          scale: {
+            ..._t.scale
+          },
           ...projectInfo
         }
       }
-      // 更新当前激活对象
+      // 更新当前激活项目
       _t.currentProject = projectInfo.id
     })
     utils.bus.$on('XPE/project/trigger', function (projectID) {
-      // 更新当前激活对象
+      // 更新当前激活项目
       _t.currentProject = projectID
     })
     utils.bus.$on('XPE/project/remove', function (projectID) {
@@ -503,6 +579,9 @@ export default {
     })
     utils.bus.$on('XPE/canvas/clear', function (projectID) {
       _t.clearCanvas(projectID)
+    })
+    utils.bus.$on('XPE/board/zoom', function (type) {
+      _t.handleZoom(type)
     })
   }
 }
