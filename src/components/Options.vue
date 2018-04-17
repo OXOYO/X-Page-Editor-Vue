@@ -88,7 +88,7 @@
         <XUISpin size="large" fix></XUISpin>
       </div>
       <XUICollapse v-model="activePanel" class="options-collapse">
-        <XUIPanel name="propsMap" v-if="Object.keys(nodeInfo).length && Object.keys(propsMap).length">
+        <XUIPanel name="propsMap" v-show="Object.keys(nodeInfo).length && Object.keys(propsMap).length">
           props
           <XUIForm
             class="options-body"
@@ -114,12 +114,18 @@
               >
               </XUISwitch>
               <XUIInputNumber
-                v-if="utils.getTypeIndex(Number, vm.$options.props[key].type) > -1"
+                v-else-if="utils.getTypeIndex(Number, vm.$options.props[key].type) > -1"
                 v-model="propsMap[key]"
               >
               </XUIInputNumber>
               <XUIInput
-                v-if="utils.getTypeIndex(String, vm.$options.props[key].type || String) > -1"
+                v-else-if="utils.getTypeIndex(String, vm.$options.props[key].type) > -1"
+                v-model="propsMap[key]"
+                type="text"
+              >
+              </XUIInput>
+              <XUIInput
+                v-else
                 v-model="propsMap[key]"
                 type="text"
               >
@@ -127,7 +133,7 @@
             </XUIFormItem>
           </XUIForm>
         </XUIPanel>
-        <XUIPanel name="slotsMap" v-if="Object.keys(nodeInfo).length && Object.keys(slotsMap).length">
+        <XUIPanel name="slotsMap" v-show="Object.keys(nodeInfo).length && Object.keys(slotsMap).length">
           slots
           <XUIForm
             class="options-body"
