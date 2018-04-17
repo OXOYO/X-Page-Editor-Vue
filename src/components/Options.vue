@@ -88,14 +88,15 @@
         <XUISpin size="large" fix></XUISpin>
       </div>
       <XUICollapse v-model="activePanel" class="options-collapse">
-        <XUIPanel name="propsMap">
+        <XUIPanel name="propsMap" v-if="Object.keys(nodeInfo).length && Object.keys(propsMap).length">
           props
           <XUIForm
             class="options-body"
             slot="content"
             v-if="Object.keys(nodeInfo).length"
-            ref="propsForm"
+            ref="propsMapForm"
             :model="propsMap"
+            :rules="propsMapRules"
             :label-width="80"
             @keydown.native.enter.prevent
             @click.stop.prevent
@@ -108,15 +109,25 @@
               :prop="key"
             >
               <XUISwitch
-                v-if="typeof propsMap[key] === 'boolean'"
+                v-if="utils.getTypeIndex(Boolean, vm.$options.props[key].type) > -1"
                 v-model="propsMap[key]"
               >
               </XUISwitch>
-              <XUIInput v-else type="text" v-model="propsMap[key]"></XUIInput>
+              <XUIInputNumber
+                v-if="utils.getTypeIndex(Number, vm.$options.props[key].type) > -1"
+                v-model="propsMap[key]"
+              >
+              </XUIInputNumber>
+              <XUIInput
+                v-if="utils.getTypeIndex(String, vm.$options.props[key].type || String) > -1"
+                v-model="propsMap[key]"
+                type="text"
+              >
+              </XUIInput>
             </XUIFormItem>
           </XUIForm>
         </XUIPanel>
-        <XUIPanel name="slotsMap">
+        <XUIPanel name="slotsMap" v-if="Object.keys(nodeInfo).length && Object.keys(slotsMap).length">
           slots
           <XUIForm
             class="options-body"
@@ -201,12 +212,25 @@ export default {
       isExpand: true,
       nodeInfo: {},
       propsMap: {},
+      propsMapRules: {},
       slotsMap: {},
+      optionsMap: {},
       innerHTML: '',
       style: '',
       // 当前展开的面板
       activePanel: ['propsMap', 'slotsMap', 'innerHTML', 'style'],
-      loading: false
+      loading: false,
+      utils,
+      vm: null,
+      propsType: {
+        String: String,
+        Number: Number,
+        Boolean: Boolean,
+        Function: Function,
+        Object: Object,
+        Array: Array,
+        Symbol: Symbol
+      }
     }
   },
   computed: {
@@ -225,6 +249,19 @@ export default {
         try {
           // 只在值变化时进行处理
           if (Object.keys(oldVal).length && Object.keys(val).length) {
+            // 校验结果
+            let validResult = false
+            _t.$refs['propsMapForm'].validate((valid) => {
+              console.log('valid', valid)
+              validResult = valid
+              if (!valid) {
+                console.error('表单验证失败！')
+              }
+            })
+            console.log('propsMapForm validResult', validResult)
+            if (!validResult) {
+              return false
+            }
             // 广播事件，更新组件props
             utils.bus.$emit('XPE/project/component/options/set', {
               ..._t.nodeInfo,
@@ -323,20 +360,27 @@ export default {
       // 读取组件
       let constructor = Vue.component(nodeInfo.component.name)
       // 实例化
-      let instance = new constructor()
-      console.log('instance', instance)
+      let vm = new constructor()
+      _t.vm = vm
+      console.log('vm', vm, nodeInfo)
+      console.log('vm $props', vm.$props)
+      console.log('vm $slots', vm.$slots)
       // 获取props、slots
       _t.propsMap = {
-        ...instance.$props,
+        ...vm.$props,
         ...nodeInfo.props
       }
+      _t.optionsMap = {
+        ...vm.$options,
+        ...nodeInfo.options
+      }
       _t.slotsMap = {
-        ...instance.$slots,
+        ...vm.$slots,
         ...nodeInfo.slots
       }
-      _t.innerHTML = nodeInfo.innerHTML || instance.innerHTML
+      _t.innerHTML = nodeInfo.innerHTML || vm.innerHTML
       let style = {
-        ...instance.style,
+        ...vm.style,
         ...nodeInfo.style
       }
       let tmpArr = []
@@ -346,6 +390,37 @@ export default {
         tmpArr.push(str)
       })
       _t.style = tmpArr.join('\n')
+      // 处理 propsMapRules FIXME 【BUG】校验处理还存在问题
+      /*
+      let rules = {}
+      Object.keys(vm.$options.props).map(key => {
+        let item = vm.$options.props[key]
+        /!*
+        rules[key] = {
+          trigger: 'change',
+          // type: String,
+          // validator: (rule, value, callback) => {
+          //   if (value === '') {
+          //     callback(new Error('Please enter ' + key))
+          // }
+          // },
+          ...item
+        }
+        *!/
+        if (item.type && utils.getType(item.type) && item.validator) {
+          rules[key] = {}
+          rules[key]['trigger'] = 'change'
+          rules[key]['type'] = item.type
+          rules[key]['validator'] = item.validator
+        } else if (!item.type && item.validator) {
+          rules[key] = {}
+          rules[key]['trigger'] = 'change'
+          rules[key]['type'] = String
+          rules[key]['validator'] = item.validator
+        }
+      })
+      _t.propsMapRules = rules
+      */
       // 更新loading状态
       _t.loading = false
     },

@@ -6,6 +6,11 @@ const list = {
       type: 'Basic',
       title: '基础',
       children: [
+        // {
+        //   title: 'XPageEditor',
+        //   name: 'XPageEditor',
+        //   icon: 'edit'
+        // },
         {
           title: 'Grid 栅格 Row',
           name: 'Row',

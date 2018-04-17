@@ -379,7 +379,7 @@ export default {
       let _t = this
       // 更新当前操作的节点
       _t.currentNode = nodeInfo.id
-      console.log('handleComponentTrigger', nodeInfo.component.name)
+      // console.log('handleComponentTrigger', nodeInfo.component.name)
       // 广播事件，更新当前激活组件
       utils.bus.$emit('XPE/project/component/trigger', nodeInfo)
       _t.$nextTick(function () {
@@ -390,7 +390,7 @@ export default {
     // 元素drop
     handleDrop: function (item, event) {
       let _t = this
-      console.log('handleDrop')
+      // console.log('handleDrop')
       let canvasMap = _t.canvasMap
       // 获取节点数据
       let nodeInfo = JSON.parse(event.dataTransfer.getData('node'))
@@ -410,7 +410,7 @@ export default {
         left: offsetX + 'px',
         top: offsetY + 'px'
       }
-      console.log('style', style)
+      // console.log('style', style)
       nodeInfo.style = {
         ...nodeInfo.style,
         ...style
@@ -441,7 +441,7 @@ export default {
     },
     // 节点拖拽
     handleDragStart: function (nodeInfo, event) {
-      console.log('handleDragStart nodeInfo', nodeInfo.component.name)
+      // console.log('handleDragStart nodeInfo', nodeInfo.component.name)
       // 拖拽的节点数据
       event.dataTransfer.setData('node', JSON.stringify(nodeInfo))
     },
@@ -451,7 +451,7 @@ export default {
       let canvasMap = _t.canvasMap
       canvasMap[_t.currentProject]['components'].map(node => {
         if (node.id === nodeInfo.id) {
-          console.log('node.id', node.id)
+          // console.log('node.id', node.id)
           node.props = nodeInfo.props
           node.slots = nodeInfo.slots
           node.innerHTML = nodeInfo.innerHTML
@@ -462,7 +462,7 @@ export default {
       _t.canvasMap = {
         ...canvasMap
       }
-      console.log('handleOptionsSet')
+      // console.log('handleOptionsSet')
       _t.$nextTick(function () {
         _t.handleMouseOverOnNode(nodeInfo)
       })
@@ -478,12 +478,12 @@ export default {
     },
     handleMouseOverOnNode: function (nodeInfo) {
       let _t = this
-      console.log('handleMouseOverOnNode')
+      // console.log('handleMouseOverOnNode')
       let target = document.querySelector('[node-id=' + nodeInfo.id + ']')
       if (target) {
         let width = target.offsetWidth + 2
         let height = target.offsetHeight + 2
-        console.log('width', width, 'height', height)
+        // console.log('width', width, 'height', height)
         let style = {
           display: 'inline-block',
           width: width + 'px',
@@ -500,7 +500,7 @@ export default {
     },
     handleMouseOutOnNode: function () {
       let _t = this
-      console.log('handleMouseOutOnNode')
+      // console.log('handleMouseOutOnNode')
       if (Object.keys(_t.canvasMap[_t.currentProject]['selectionStyleMap']).length) {
         let selectionStyleMap = _t.canvasMap[_t.currentProject]['selectionStyleMap']
         Object.keys(selectionStyleMap).map(key => {
@@ -546,7 +546,7 @@ export default {
     })
     // 监听事件
     utils.bus.$on('XPE/project/add/ok', function (projectInfo) {
-      console.log('canvasMap', projectInfo.name)
+      // console.log('canvasMap', projectInfo.name)
       _t.canvasMap = {
         ..._t.canvasMap,
         [projectInfo.id]: {

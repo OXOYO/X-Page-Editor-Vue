@@ -73,7 +73,7 @@
             draggable="true"
             @dragstart="handleDragStart(component, $event)"
           >
-            <Icon type="component.icon"></Icon>
+            <Icon :type="component.icon"></Icon>
             {{ component.title }}
           </div>
         </div>
@@ -104,6 +104,7 @@
           component: component,
           props: {},
           slots: {},
+          options: {},
           innerHTML: ''
         }
         event.dataTransfer.setData('node', JSON.stringify(nodeInfo))
