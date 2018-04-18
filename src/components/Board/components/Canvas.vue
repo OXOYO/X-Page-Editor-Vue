@@ -66,7 +66,7 @@
       :name="item.name"
       :title="item.name"
       @contextmenu.stop.prevent="handleRightClickOnCanvas($event)"
-      @drop.stop.prevent="handleDrop(item, $event)"
+      @drop.stop.prevent="handleDropOnCanvas(item, $event)"
       @dragover.stop.prevent
     >
       <h1> {{ item.name }}</h1>
@@ -95,22 +95,49 @@
           @dragstart.native="handleDragStart(node, $event)"
           @mouseover.native.stop.prevent="handleMouseOverOnNode(node)"
           @mouseout.native.stop.prevent="handleMouseOutOnNode(node)"
+          @drop.native.stop.prevent="handleDropOnNode(node, $event)"
+          @dragover.stop.prevent
         >
           {{ node.innerHTML}}
+          <template
+            v-if="node.children && node.children.length"
+            v-for="(childNode, childIndex) in node.children"
+          >
+            <component
+              class="component-node"
+              :is="childNode.component.name"
+              :key="childIndex"
+              :node-id="childNode.id"
+              v-bind="childNode.props"
+              :style="childNode.style"
+              @contextmenu.native.stop.prevent="handleRightClickOnNode(childNode, $event)"
+              @click.native.stop.prevent="handleComponentTrigger(childNode)"
+              draggable="true"
+              @dragstart.native="handleDragStart(childNode, $event)"
+              @mouseover.native.stop.prevent="handleMouseOverOnNode(childNode)"
+              @mouseout.native.stop.prevent="handleMouseOutOnNode(childNode)"
+              @drop.stop.prevent="handleDropOnNode(childNode, $event)"
+              @dragover.stop.prevent
+            >
+            </component>
+          </template>
         </component>
       </template>
     </div>
+    <NestNoticeModal></NestNoticeModal>
   </div>
 </template>
 
 <script>
 import XPEButton from '@/ui/Button.vue'
 import utils from '@/global/utils'
+import NestNoticeModal from './NestNoticeModal.vue'
 
 export default {
   name: 'XPECanvas',
   components: {
-    XPEButton
+    XPEButton,
+    NestNoticeModal
   },
   data () {
     return {
@@ -422,9 +449,9 @@ export default {
       })
     },
     // 元素drop
-    handleDrop: function (item, event) {
+    handleDropOnCanvas: function (item, event) {
       let _t = this
-      // console.log('handleDrop')
+      console.log('handleDropOnCanvas')
       let canvasMap = _t.canvasMap
       // 获取节点数据
       let nodeInfo = JSON.parse(event.dataTransfer.getData('node'))
@@ -471,6 +498,102 @@ export default {
       _t.$nextTick(function () {
         _t.handleMouseOverOnNode(nodeInfo)
         _t.handleMouseOutOnNode()
+      })
+    },
+    handleDropOnNode: function (parentNode, event) {
+      let _t = this
+      console.log('handleDropOnNode')
+      let canvasMap = _t.canvasMap
+      // 获取节点数据
+      let nodeInfo = JSON.parse(event.dataTransfer.getData('node'))
+      nodeInfo = {
+        id: '',
+        components: {},
+        props: {},
+        slots: {},
+        innerHTML: '',
+        ...nodeInfo
+      }
+      // 是否可以嵌套标识
+      let isNest = false
+      let parentNest = parentNode.component.nest || {
+        enable: false,
+        parent: {
+          allow: [],
+          deny: []
+        },
+        children: {
+          allow: [],
+          deny: []
+        }
+      }
+      let childNest = nodeInfo.component.nest || {
+        enable: false,
+        parent: {
+          allow: [],
+          deny: []
+        },
+        children: {
+          allow: [],
+          deny: []
+        }
+      }
+      let parentName = parentNode.component.name
+      let childName = nodeInfo.component.name
+      // 判断目标节点是否支持嵌套
+      if (parentNest.enable) {
+        if (!parentNest.children.allow.length && !parentNest.children.deny.length && !childNest.parent.allow.length && !childNest.parent.deny.length) {
+          isNest = true
+        } else if (parentNest.children.allow.length) {
+          isNest = parentNest.children.allow.includes(childName) && !parentNest.children.deny.includes(childName)
+        } else if (parentNest.children.deny.length) {
+          isNest = !parentNest.children.deny.includes(childName)
+        } else if (childNest.parent.allow.length) {
+          isNest = childNest.parent.allow.includes(parentName) && !childNest.parent.deny.includes(parentName)
+        } else if (childNest.parent.deny.length) {
+          isNest = !childNest.parent.deny.includes(parentName)
+        }
+      }
+      if (!isNest) {
+        // TODO 弹窗提示不能嵌套
+        utils.bus.$emit('XPE/canvas/nest/notice')
+        return
+      }
+      let offsetX = event.offsetX
+      let offsetY = event.offsetY
+      let style = {
+        position: 'absolute',
+        'pointer-events': 'auto',
+        left: offsetX + 'px',
+        top: offsetY + 'px'
+      }
+      // console.log('style', style)
+      nodeInfo.style = {
+        ...nodeInfo.style,
+        ...style
+      }
+      // 1.删除当前节点
+      canvasMap[_t.currentProject]['components'] = canvasMap[_t.currentProject]['components'].filter(node => {
+        if (node.id !== nodeInfo.id) {
+          return true
+        }
+        return false
+      })
+      // 2.给当前节点设置children
+      canvasMap[_t.currentProject]['components'].map(node => {
+        if (node.id === parentNode.id) {
+          if (!node.hasOwnProperty('children')) {
+            node.children = []
+          }
+          node.children.push(nodeInfo)
+        }
+        return node
+      })
+      _t.canvasMap = {
+        ...canvasMap
+      }
+      _t.$nextTick(function () {
+        _t.handleComponentTrigger(nodeInfo)
       })
     },
     // 节点拖拽
