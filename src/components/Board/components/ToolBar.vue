@@ -73,7 +73,15 @@
         @mousedown.stop.prevent
         @click.stop.prevent="triggerBarItem(item)"
       >
-        <XPEIcon :type="item.icon" :title="item.text"></XPEIcon>
+        <XUITooltip
+          v-if="item.toolTip && item.toolTip.enable && item.toolTip.content"
+          transfer
+          :placement="toolTip.placement[config.position]"
+          :content="item.toolTip.content"
+        >
+          <XPEIcon :type="item.icon" :title="item.text"></XPEIcon>
+        </XUITooltip>
+        <XPEIcon v-else :type="item.icon" :title="item.text"></XPEIcon>
       </div>
     </div>
   </div>
@@ -99,6 +107,7 @@ export default {
     }
   },
   data () {
+    let _t = this
     return {
       // 默认工具列表
       defBarList: [
@@ -112,6 +121,10 @@ export default {
             type: 'bus',
             handler: 'XPE/expand/toggle/all',
             params: false
+          },
+          toolTip: {
+            enable: false,
+            content: ''
           }
         },
         {
@@ -124,6 +137,10 @@ export default {
             type: 'bus',
             handler: 'XPE/expand/toggle/all',
             params: true
+          },
+          toolTip: {
+            enable: false,
+            content: ''
           }
         },
         {
@@ -134,8 +151,17 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XPE/board/zoom',
-            params: 'in'
+            handler: 'XPE/canvas/zoom',
+            params: {
+              type: 'zoom-in',
+              callback: (content) => {
+                _t.handleToolTipContent('zoom', content)
+              }
+            }
+          },
+          toolTip: {
+            enable: true,
+            content: ''
           }
         },
         {
@@ -146,8 +172,17 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XPE/board/zoom',
-            params: 'reset'
+            handler: 'XPE/canvas/zoom',
+            params: {
+              type: 'zoom-reset',
+              callback: (content) => {
+                _t.handleToolTipContent('zoom', content)
+              }
+            }
+          },
+          toolTip: {
+            enable: true,
+            content: ''
           }
         },
         {
@@ -158,8 +193,17 @@ export default {
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XPE/board/zoom',
-            params: 'out'
+            handler: 'XPE/canvas/zoom',
+            params: {
+              type: 'zoom-out',
+              callback: (content) => {
+                _t.handleToolTipContent('zoom', content)
+              }
+            }
+          },
+          toolTip: {
+            enable: true,
+            content: ''
           }
         }
       ],
@@ -188,12 +232,13 @@ export default {
       style: {},
       // 工具栏与其他面板间距, 默认50px
       distance: 50,
-      // 缩放级别
-      zoom: {
-        // 当前缩放级别 0: 未缩放 1: 放大一级 -1: 缩小一级
-        current: 0,
-        max: 5,
-        min: -5
+      toolTip: {
+        placement: {
+          'top-left': 'right',
+          'top-right': 'left',
+          'bottom-right': 'left',
+          'bottom-left': 'right'
+        }
       }
     }
   },
@@ -250,6 +295,16 @@ export default {
             break
         }
       }
+    },
+    // 处理toolTip content
+    handleToolTipContent: function (category, content) {
+      let _t = this
+      _t.barList.map(item => {
+        if (item.category === category) {
+          item.toolTip.content = content
+        }
+        return item
+      })
     }
   },
   created: function () {

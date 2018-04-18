@@ -69,8 +69,6 @@
       @drop.stop.prevent="handleDropOnCanvas(item, $event)"
       @dragover.stop.prevent
     >
-      <h1> {{ item.name }}</h1>
-      <h1> {{ item.id }}</h1>
       <!-- 选中虚线框效果 -->
       <div
         v-for="(selectionStyle, key) in item.selectionStyleMap"
@@ -670,18 +668,21 @@ export default {
         }
       }
     },
-    handleZoom: function (type) {
+    handleZoom: function (params) {
       let _t = this
       let current
       let projectInfo = _t.canvasMap[_t.currentProject]
-      switch (type) {
-        case 'in':
+      if (!projectInfo) {
+        return
+      }
+      switch (params.type) {
+        case 'zoom-in':
           current = projectInfo.scale.current + projectInfo.scale.step
           break
-        case 'out':
+        case 'zoom-out':
           current = projectInfo.scale.current - projectInfo.scale.step
           break
-        case 'reset':
+        case 'zoom-reset':
           current = projectInfo.scale.default
           break
       }
@@ -693,6 +694,8 @@ export default {
         current = projectInfo.scale.default
       }
       _t.canvasMap[_t.currentProject]['scale']['current'] = current
+      // 执行回调
+      params.callback(Math.ceil(current * 100) + '%')
     }
   },
   created: function () {
@@ -737,8 +740,8 @@ export default {
     utils.bus.$on('XPE/canvas/clear', function (projectID) {
       _t.clearCanvas(projectID)
     })
-    utils.bus.$on('XPE/board/zoom', function (type) {
-      _t.handleZoom(type)
+    utils.bus.$on('XPE/canvas/zoom', function (params) {
+      _t.handleZoom(params)
     })
   }
 }
