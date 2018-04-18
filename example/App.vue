@@ -32,7 +32,6 @@
     <div class="page-editor-example">
       <XPageEditor :config="pageEditorConfig">
         <!-- 自定义元素列表组件 -->
-        <!--<CustomList slot="list"></CustomList>-->
         <CustomListItem slot="listItem"></CustomListItem>
       </XPageEditor>
     </div>
@@ -40,14 +39,12 @@
 </template>
 
 <script>
-import CustomList from './components/CustomList.vue'
-import CustomListItem from './components/ListItem.vue'
+import CustomListItem from './components/CustomListItem.vue'
 import Resources from './resources'
 
 export default {
   name: 'App',
   components: {
-    CustomList,
     CustomListItem
   },
   data () {
