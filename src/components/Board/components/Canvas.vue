@@ -368,6 +368,21 @@ export default {
               handler: _t.handleComponentTrigger,
               params: nodeInfo
             }
+          },
+          {
+            name: 'remove',
+            icon: {
+              type: 'android-remove',
+              style: '',
+              category: 'iview'
+            },
+            text: '删除',
+            enable: true,
+            action: {
+              type: 'callback',
+              handler: _t.handleComponentRemove,
+              params: nodeInfo
+            }
           }
         ]
       }
@@ -384,6 +399,25 @@ export default {
       utils.bus.$emit('XPE/project/component/trigger', nodeInfo)
       _t.$nextTick(function () {
         _t.handleMouseOverOnNode(nodeInfo)
+        _t.handleMouseOutOnNode()
+      })
+    },
+    // 删除元素
+    handleComponentRemove: function (nodeInfo) {
+      let _t = this
+      // 更新当前操作的节点
+      _t.currentNode = ''
+      let canvasMap = _t.canvasMap
+      _t.canvasMap[_t.currentProject]['components'] = canvasMap[_t.currentProject]['components'].filter(node => {
+        if (node.id !== nodeInfo.id) {
+          return true
+        }
+        return false
+      })
+      console.log('canvasMap', canvasMap)
+      // 广播事件，更新当前激活组件
+      utils.bus.$emit('XPE/project/component/remove', nodeInfo)
+      _t.$nextTick(function () {
         _t.handleMouseOutOnNode()
       })
     },

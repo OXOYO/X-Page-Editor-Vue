@@ -453,6 +453,9 @@ export default {
     utils.bus.$on('XPE/canvas/clear', function (projectID) {
       _t.clearOptions(projectID)
     })
+    utils.bus.$on('XPE/project/component/remove', function (nodeInfo) {
+      _t.clearOptions(nodeInfo)
+    })
   }
 }
 </script>
