@@ -29,12 +29,14 @@
 </style>
 
 <template>
-  <div class="xpe" @contextmenu.stop.prevent @mousedown.stop.prevent="handleMouseDown">
+  <div id="xpe" class="xpe" @contextmenu.stop.prevent @mousedown.stop="handleMouseDown">
     <slot name="header" v-if="mergeConfig.UI.header.enable">
       <XPEHeader :config="mergeConfig.UI.header"></XPEHeader>
     </slot>
     <slot name="list" v-if="mergeConfig.UI.list.enable">
-      <XPEList :config="mergeConfig.UI.list"></XPEList>
+      <XPEList :config="mergeConfig.UI.list">
+        <slot name="listItem"></slot>
+      </XPEList>
     </slot>
     <slot name="board" v-if="mergeConfig.UI.board.enable">
       <XPEBoard :config="mergeConfig.UI.board"></XPEBoard>
@@ -45,22 +47,23 @@
     <slot name="footer" v-if="mergeConfig.UI.footer.enable">
       <XPEFooter :config="mergeConfig.UI.footer"></XPEFooter>
     </slot>
+    <!-- 右键菜单 -->
     <XPEContextMenu></XPEContextMenu>
   </div>
 </template>
 
 <script>
-import '../global/icon/iconfont.css'
+import '@/global/icon/iconfont.css'
 
-import XPEHeader from './Header.vue'
+import XPEHeader from './Header'
 import XPEList from './List.vue'
-import XPEBoard from './Board.vue'
+import XPEBoard from './Board'
 import XPEOptions from './Options.vue'
 import XPEFooter from './Footer.vue'
-import XPEContextMenu from '../global/components/ContextMenu/Index.vue'
+import XPEContextMenu from '@/global/components/ContextMenu/Index.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPE',
@@ -71,6 +74,8 @@ export default {
     XPEOptions,
     XPEFooter,
     XPEContextMenu
+    // ,
+    // XPEAddProjectModal
   },
   props: {
     config: {
@@ -84,7 +89,9 @@ export default {
     return {
       defConfig,
       // 合并后的config
-      mergeConfig: {}
+      mergeConfig: {},
+      // 项目列表
+      projectList: []
     }
   },
   methods: {

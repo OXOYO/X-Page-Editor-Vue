@@ -21,24 +21,31 @@
 
 <template>
   <div id="app">
+    <a href="https://github.com/OXOYO/X-Page-Editor-Vue" target="_blank">
+      <img
+        style="position: absolute; top: 0; right: 0; border: 0; z-index: 5000"
+        src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
+        alt="Fork me on GitHub"
+      >
+    </a>
     <!--<img src="./assets/logo.png">-->
     <div class="page-editor-example">
       <XPageEditor :config="pageEditorConfig">
         <!-- 自定义元素列表组件 -->
-        <!--<CustomList slot="list"></CustomList>-->
+        <CustomListItem slot="listItem"></CustomListItem>
       </XPageEditor>
     </div>
   </div>
 </template>
 
 <script>
-import CustomList from './components/CustomList.vue'
+import CustomListItem from './components/CustomListItem.vue'
 import Resources from './resources'
 
 export default {
   name: 'App',
   components: {
-    CustomList
+    CustomListItem
   },
   data () {
     return {
@@ -68,7 +75,11 @@ export default {
             // 该功能数据源
             data: Resources,
             // 初始化数据
-            initData: []
+            initData: [],
+            style: {
+              width: '300px',
+              'margin-left': '-300px'
+            }
           },
           // 编辑器画板
           board: {
@@ -83,7 +94,10 @@ export default {
               // 是否启用该功能，true: 启用 false: 不启用
               enable: true,
               // 位置，可选值 top-left || top-right || bottom-right || bottom-left
-              position: 'top-right'
+              position: 'top-right',
+              style: {
+                right: '350px'
+              }
             },
             // 刻度尺配置
             scale: {
@@ -98,7 +112,11 @@ export default {
             // 该功能数据源
             data: [],
             // 初始化数据
-            initData: []
+            initData: [],
+            style: {
+              width: '300px',
+              'margin-right': '-300px'
+            }
           },
           // 编辑器功能：脚部组件
           footer: {

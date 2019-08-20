@@ -32,7 +32,13 @@ export default {
       // 该功能数据源
       data: [],
       // 初始化数据
-      initData: []
+      initData: [],
+      // 样式
+      style: {
+        // width 和 margin-left 需同时设置
+        width: '400px',
+        'margin-left': '-400px'
+      }
     },
     // 编辑器功能：编辑器画板
     board: {
@@ -47,7 +53,10 @@ export default {
         // 是否启用该功能，true: 启用 false: 不启用
         enable: true,
         // 位置，可选值 top-left || top-right || bottom-right || bottom-left
-        position: 'top-right'
+        position: 'top-right',
+        style: {
+          right: '450px'
+        }
       },
       // 刻度尺配置
       scale: {
@@ -62,7 +71,13 @@ export default {
       // 该功能数据源
       data: [],
       // 初始化数据
-      initData: []
+      initData: [],
+      // 样式
+      style: {
+        // width 和 margin-right 需同时设置
+        width: '400px',
+        'margin-right': '-400px'
+      }
     },
     // 编辑器功能：脚部组件
     footer: {

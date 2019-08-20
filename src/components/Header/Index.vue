@@ -61,14 +61,24 @@
       bottom: 0;
       z-index: 2500;
       background: #ffffff;
-      text-align: right;
+      /*text-align: right;*/
 
-      .btn-group {
+      .tab-group {
+        display: inline-block;
+        float: left;
         height: 30px;
         line-height: 30px;
-        margin-top: 15px;
-        display: inline-block;
+        margin-top: 18px;
+        max-width: 70%;
+      }
 
+      .btn-group {
+        display: inline-block;
+        float: right;
+        height: 30px;
+        line-height: 30px;
+        margin-top: 18px;
+        max-width: 30%;
         .btn-item {
           padding: 0 5px;
         }
@@ -83,32 +93,61 @@
       <div class="title">{{ config.title.text }}</div>
     </div>
     <div class="block_body">
+      <!-- tab -->
+      <div class="tab-group">
+        <XPETabList></XPETabList>
+      </div>
       <div class="btn-group">
         <!-- TODO 上传UI效果图，进行UI图与界面的比对 -->
-        <XPEButton type="text" class="btn-item">
-          <i class="iconfont icon-ui" title="UI" @mousedown.stop.prevent @click.stop.prevent="handleUI"></i>
-        </XPEButton>
-        <XPEButton type="text" class="btn-item">
-          <i class="iconfont icon-preview" title="预览" @mousedown.stop.prevent @click.stop.prevent="handlePreview"></i>
-        </XPEButton>
+        <XUIButton
+          type="text"
+          class="btn-item"
+          @contextmenu.stop.prevent
+          @mousedown.stop.prevent
+          @click.native.stop.prevent="handleAction('addProject')"
+        >
+          <XPEIcon type="add-circle" title="新建项目"></XPEIcon>
+        </XUIButton>
+        <XUIButton
+          type="text"
+          class="btn-item"
+          @contextmenu.stop.prevent
+          @mousedown.stop.prevent
+          @click.native.stop.prevent="handleAction('ui')"
+        >
+          <XPEIcon type="ui" title="UI"></XPEIcon>
+        </XUIButton>
+        <XUIButton
+          type="text"
+          class="btn-item"
+          @contextmenu.stop.prevent
+          @mousedown.stop.prevent
+          @click.native.stop.prevent="handleAction('preview')"
+        >
+          <XPEIcon type="preview" title="预览"></XPEIcon>
+        </XUIButton>
       </div>
     </div>
     <XPEHandler class="handler" mode="horizontal" position="bottom" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
+    <!-- 新建项目弹窗 -->
+    <XPEAddProjectModal></XPEAddProjectModal>
   </div>
 </template>
 
 <script>
-import XPEHandler from '../global/components/Handler.vue'
-import XPEButton from '../global/components/Button.vue'
+import XPEHandler from '@/global/components/Handler.vue'
+import XPEAddProjectModal from './components/AddProjectModal.vue'
+import XPETabList from './components/TabList.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEHeader',
   components: {
     XPEHandler,
-    XPEButton
+    XPEAddProjectModal,
+    XPETabList
   },
   props: {
     config: {
@@ -121,7 +160,9 @@ export default {
   data () {
     return {
       // 是否展开
-      isExpand: true
+      isExpand: true,
+      // tab列表数据
+      tabList: []
     }
   },
   methods: {
@@ -140,11 +181,16 @@ export default {
         })
       })
     },
-    handleUI: function () {
-      console.log('handleUI')
-    },
-    handlePreview: function () {
-      console.log('handlePreview')
+    handleAction: function (actionName) {
+      console.log('handleAction', actionName)
+      let handleAddProject = function () {
+        utils.bus.$emit('XPE/project/add')
+      }
+      switch (actionName) {
+        case 'addProject':
+          handleAddProject()
+          break
+      }
     }
   },
   created: function () {

@@ -64,24 +64,22 @@
 <template>
   <div :class="{'xpe_footer': true, 'block_expand': isExpand}">
     <div class="block_body">
-      <XPEButton type="primary">SAVE</XPEButton>
+      <XUIButton type="primary">SAVE</XUIButton>
     </div>
     <XPEHandler class="handler" mode="horizontal" position="top" :expand="isExpand" :callback="toggleHandler"></XPEHandler>
   </div>
 </template>
 
 <script>
-import XPEHandler from '../global/components/Handler.vue'
-import XPEButton from '../global/components/Button.vue'
+import XPEHandler from '@/global/components/Handler.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEFooter',
   components: {
-    XPEHandler,
-    XPEButton
+    XPEHandler
   },
   props: {
     config: {

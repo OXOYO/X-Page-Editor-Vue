@@ -59,16 +59,15 @@
 
 <template>
   <div
+    id="xpe_board"
     :class="{'xpe_board': true, 'draw-guides_x': guides.status.move && guides.type === 'x', 'draw-guides_y': guides.status.move && guides.type === 'y' }"
     @dblclick.stop.prevent="toggleExpand"
-    @contextmenu.stop.prevent="handlerRightClick($event)"
-    @mousemove.stop.prevent="handleMouseMoveOnBoard($event)"
+    @contextmenu.stop.prevent="handleRightClick($event)"
+    @mousemove="handleMouseMoveOnBoard($event)"
     @mouseup.stop.prevent="handleMouseUpOnBoard($event)"
   >
     <div class="block_body">
-      <h1>TODO Board</h1>
-      <!-- TODO 画布组件，可以考虑参照PS -->
-      <div class="canvas" @mousemove.stop.prevent="handleMouseMoveOnCanvas($event)"></div>
+      <XPECanvas></XPECanvas>
     </div>
     <slot name="toolBar" v-if="config.toolBar.enable">
       <XPEToolBar :config="config.toolBar" :expand="isExpand"></XPEToolBar>
@@ -80,17 +79,19 @@
 </template>
 
 <script>
-import XPEToolBar from '../global/components/ToolBar.vue'
-import XPEScale from '../global/components/Scale.vue'
+import XPEToolBar from './components/ToolBar.vue'
+import XPEScale from './components/Scale.vue'
+import XPECanvas from './components/Canvas.vue'
 
-import defConfig from '../config'
-import utils from '../global/utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEBoard',
   components: {
     XPEToolBar,
-    XPEScale
+    XPEScale,
+    XPECanvas
   },
   props: {
     config: {
@@ -140,10 +141,18 @@ export default {
       utils.bus.$emit('XPE/expand/toggle/all', _t.isExpand)
     },
     // 桌面右键点击
-    handlerRightClick: function (event) {
+    handleRightClick: function (event) {
       let _t = this
-      let xVal = parseInt(event.offsetX)
-      let yVal = parseInt(event.offsetY)
+      let xpeEl = document.querySelector('#xpe')
+      let xVal
+      let yVal
+      if (xpeEl) {
+        xVal = event.clientX - xpeEl.offsetLeft
+        yVal = event.clientY - xpeEl.offsetTop
+      } else {
+        xVal = event.offsetX
+        yVal = event.offsetY
+      }
       // 菜单信息
       let contextMenuInfo = {
         isShow: true,
@@ -155,7 +164,8 @@ export default {
             name: 'expand',
             icon: {
               type: 'icon-expand',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '展开',
             enable: _t.isExpand,
@@ -169,7 +179,8 @@ export default {
             name: 'fold',
             icon: {
               type: 'icon-fold',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
             text: '折叠',
             enable: !_t.isExpand,
@@ -180,15 +191,45 @@ export default {
             }
           },
           {
-            name: 'clear',
+            name: 'showGuides',
             icon: {
               type: '',
-              style: ''
+              style: '',
+              category: 'iconfont'
             },
-            text: '清空',
+            text: '显示 / 隐藏参考线',
             enable: true,
             action: {
               type: 'bus',
+              handler: 'XPE/scale/guides/toggle'
+            }
+          },
+          {
+            name: 'showToolTip',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '显示 / 隐藏参考线坐标',
+            enable: true,
+            action: {
+              type: 'bus',
+              handler: 'XPE/scale/guides/toolTip/toggle'
+            }
+          },
+          {
+            name: 'clear',
+            icon: {
+              type: '',
+              style: '',
+              category: 'iconfont'
+            },
+            text: '清空编辑器画板',
+            enable: false,
+            action: {
+              type: 'bus',
+              // FIXME 需添加confirm 回调操作
               handler: 'XPE/board/clear'
             }
           }
@@ -206,33 +247,23 @@ export default {
         // console.log('handleMouseMoveOnBoard type', _t.guides.type)
         // 依据移动距离判断是否可以开始画线
         if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
-          let currentPosition = {
-            x: event.offsetX,
-            y: event.offsetY
+          let xpeEl = document.querySelector('#xpe')
+          let currentPosition
+          if (xpeEl) {
+            currentPosition = {
+              x: event.clientX - xpeEl.offsetLeft,
+              y: event.clientY - xpeEl.offsetTop
+            }
+          } else {
+            currentPosition = {
+              x: event.offsetX,
+              y: event.offsetY
+            }
           }
+          // console.log('currentPosition', 'x:', currentPosition.x, 'y:', currentPosition.y, xpeEl.offsetTop)
           if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
             _t.guides.position['move'] = currentPosition
-            utils.bus.$emit('XPE/scale/guides/move', _t.guides)
-          }
-        }
-      }
-    },
-    handleMouseMoveOnCanvas: function (event) {
-      let _t = this
-      // 判断是否开始拖拽参考线
-      if (_t.guides.status.start) {
-        // 更新标识
-        _t.guides.status.move = true
-        // console.log('handleMouseMoveOnBoard type', _t.guides.type)
-        // 依据移动距离判断是否可以开始画线
-        if (_t.guides.condition && _t.guides.condition.draw && typeof _t.guides.condition.draw === 'function') {
-          let currentPosition = {
-            x: event.clientX,
-            y: event.clientY
-          }
-          if (_t.guides.condition.draw(_t.guides.type, currentPosition, _t.guides.position.start)) {
-            _t.guides.position['move'] = currentPosition
-            utils.bus.$emit('XPE/scale/guides/move', _t.guides)
+            utils.bus.$emit('XPE/scale/guides/drag/move', _t.guides)
           }
         }
       }
@@ -243,7 +274,7 @@ export default {
       _t.guides.status.start = false
       _t.guides.status.move = false
       _t.guides.status.end = true
-      utils.bus.$emit('XPE/scale/guides/stop', _t.guides)
+      utils.bus.$emit('XPE/scale/guides/drag/stop', _t.guides)
     }
   },
   created: function () {
@@ -252,10 +283,7 @@ export default {
     utils.bus.$on('XPE/expand/toggle/all', function (val) {
       _t.isExpand = val
     })
-    utils.bus.$on('XPE/scale/guides/add/start', function (info) {
-      _t.guides = info
-    })
-    utils.bus.$on('XPE/scale/guides/edit/start', function (info) {
+    utils.bus.$on('XPE/scale/guides/drag/start', function (info) {
       _t.guides = info
     })
   },

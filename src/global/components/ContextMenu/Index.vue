@@ -11,7 +11,7 @@
     width: auto !important;
     z-index: 9999;
     background: #FFF;
-    box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0 0 2px 1px rgba(0, 0, 0, .1);
     padding: 5px 0;
 
     .context-menu-item {
@@ -33,8 +33,9 @@
         background-color: #f5f7f9;
       }
       &:hover {
-        background: #f0f0f0;
-        border-color: #57a3f3;
+        /*background: #f0f0f0;*/
+        background: #f3f3f3;
+        /*border-color: #57a3f3;*/
         /*box-shadow: 0 0 2px 2px rgba(45, 140, 240, .2);*/
 
         .context-menu-child {
@@ -50,17 +51,33 @@
         position: absolute;
         top: 50%;
         left: 10px;
-        margin-top: -8px;
+        height: 12px;
+        width: 12px;
+        margin-top: -6px;
+        font-size: 12px;
         transition: all .5s ease-in .1s;
+        display: inline-block;
+        speak: none;
+        font-style: normal;
+        font-weight: 400;
+        font-variant: normal;
+        text-transform: none;
+        text-rendering: auto;
+        line-height: 12px;
+        -webkit-font-smoothing: antialiased;
       }
       .context-menu-label {
         display: inline-block;
         position: relative;
         width: 100%;
+        text-align: left;
+        height: 22px;
+        line-height: 22px;
 
         .context-menu-label-text {
           display: inline-block;
           font-size: 14px;
+          text-align: left;
         }
         .context-menu-icon-child {
           display: inline-block;
@@ -125,7 +142,7 @@
 
 <script>
 import ContextMenuItem from './ContextMenuItem.vue'
-import utils from '../../utils'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEContextMenu',

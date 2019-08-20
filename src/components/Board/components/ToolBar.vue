@@ -43,7 +43,7 @@
           width: 20px;
           height: 20px;
           line-height: 20px;
-          padding: 5px;
+          /*padding: 5px;*/
           display: inline-block;
           color: #333333;
 
@@ -73,15 +73,23 @@
         @mousedown.stop.prevent
         @click.stop.prevent="triggerBarItem(item)"
       >
-        <i :class="['iconfont', item.icon]" :title="item.text"></i>
+        <XUITooltip
+          v-if="item.toolTip && item.toolTip.enable && item.toolTip.content"
+          transfer
+          :placement="toolTip.placement[config.position]"
+          :content="item.toolTip.content"
+        >
+          <XPEIcon :type="item.icon" :title="item.text"></XPEIcon>
+        </XUITooltip>
+        <XPEIcon v-else :type="item.icon" :title="item.text"></XPEIcon>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import defConfig from '../../config'
-import utils from '../utils'
+import defConfig from '@/config'
+import utils from '@/global/utils'
 
 export default {
   name: 'XPEToolBar',
@@ -99,53 +107,103 @@ export default {
     }
   },
   data () {
+    let _t = this
     return {
       // 默认工具列表
       defBarList: [
         {
           name: 'expand',
           text: '展开',
-          icon: 'icon-expand',
+          icon: 'expand',
           category: 'expand',
           enable: true,
           action: {
             type: 'bus',
             handler: 'XPE/expand/toggle/all',
             params: false
+          },
+          toolTip: {
+            enable: false,
+            content: ''
           }
         },
         {
           name: 'fold',
           text: '折叠',
-          icon: 'icon-fold',
+          icon: 'fold',
           category: 'expand',
           enable: true,
           action: {
             type: 'bus',
             handler: 'XPE/expand/toggle/all',
             params: true
+          },
+          toolTip: {
+            enable: false,
+            content: ''
           }
         },
         {
           name: 'zoom-in',
           text: '放大',
-          icon: 'icon-zoom-in',
+          icon: 'zoom-in',
           category: 'zoom',
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XPE/board/zoom/in'
+            handler: 'XPE/canvas/zoom',
+            params: {
+              type: 'zoom-in',
+              callback: (content) => {
+                _t.handleToolTipContent('zoom', content)
+              }
+            }
+          },
+          toolTip: {
+            enable: true,
+            content: ''
+          }
+        },
+        {
+          name: 'zoom-reset',
+          text: '还原',
+          icon: 'zoom',
+          category: 'zoom',
+          enable: true,
+          action: {
+            type: 'bus',
+            handler: 'XPE/canvas/zoom',
+            params: {
+              type: 'zoom-reset',
+              callback: (content) => {
+                _t.handleToolTipContent('zoom', content)
+              }
+            }
+          },
+          toolTip: {
+            enable: true,
+            content: ''
           }
         },
         {
           name: 'zoom-out',
           text: '缩小',
-          icon: 'icon-zoom-out',
+          icon: 'zoom-out',
           category: 'zoom',
           enable: true,
           action: {
             type: 'bus',
-            handler: 'XPE/board/zoom/out'
+            handler: 'XPE/canvas/zoom',
+            params: {
+              type: 'zoom-out',
+              callback: (content) => {
+                _t.handleToolTipContent('zoom', content)
+              }
+            }
+          },
+          toolTip: {
+            enable: true,
+            content: ''
           }
         }
       ],
@@ -174,12 +232,13 @@ export default {
       style: {},
       // 工具栏与其他面板间距, 默认50px
       distance: 50,
-      // 缩放级别
-      zoom: {
-        // 当前缩放级别 0: 未缩放 1: 放大一级 -1: 缩小一级
-        current: 0,
-        max: 5,
-        min: -5
+      toolTip: {
+        placement: {
+          'top-left': 'right',
+          'top-right': 'left',
+          'bottom-right': 'left',
+          'bottom-left': 'right'
+        }
       }
     }
   },
@@ -196,7 +255,10 @@ export default {
     init: function () {
       let _t = this
       // 计算样式
-      _t.style = _t.defStyle[_t.config.position]
+      _t.style = {
+        ..._t.defStyle[_t.config.position],
+        ..._t.config.style
+      }
       // 处理barList
       _t.handleBarList(_t.expand)
     },
@@ -233,6 +295,16 @@ export default {
             break
         }
       }
+    },
+    // 处理toolTip content
+    handleToolTipContent: function (category, content) {
+      let _t = this
+      _t.barList.map(item => {
+        if (item.category === category) {
+          item.toolTip.content = content
+        }
+        return item
+      })
     }
   },
   created: function () {

@@ -1,6 +1,6 @@
 # X-Page-Editor
 
-> A form editor plugin based on vue.
+> A page editor plugin based on vue.
 
 ## Example
 
@@ -13,6 +13,8 @@ npm run dev
 ```
 
 ## Preview
+
+[Demo](https://oxoyo.github.io/X-Page-Editor-Vue/)
 
 ![X-Page-Editor](./docs/preview_001.png)
 
